@@ -1,69 +1,112 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+const steps = [
+  {
+    n: "01",
+    name: "Audience Map",
+    title: "See who actually engages with you",
+    body: "We pull every reactor and commenter from your recent posts and cluster them into named niches — AI Builders, Talent Leaders, Founders & VC — with sizes, seniority and writing guidance. Your real audience, not a follower count.",
+  },
+  {
+    n: "02",
+    name: "Creative Studio",
+    title: "Brief once, write for every niche",
+    body: "One launch brief in, a full variant matrix out: four hook styles per niche, every post written for one specific reader, formatted the way LinkedIn actually rewards.",
+  },
+  {
+    n: "03",
+    name: "Wind Tunnel",
+    title: "Pre-test before anything hits your feed",
+    body: "Synthetic agents grounded in your real engagers scroll past your drafts and score scroll-stop, read-through, and engagement intent. Winners are picked with confidence scores — before you spend your credibility on a flop.",
+  },
+  {
+    n: "04",
+    name: "Deploy",
+    title: "Ship the winner, export the audience",
+    body: "Copy the winning post per niche with best-time-to-post guidance, and export each niche as a CSV — ready for ads, outreach, or your CRM.",
+  },
+];
+
+export default function Landing() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-sky-500 font-black text-white">
+            S
+          </span>
+          <span className="text-lg font-bold tracking-tight">
+            Signal<span className="text-sky-400">/in</span>
+          </span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <Link
+          href="/app"
+          className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-400"
+        >
+          Open the app
+        </Link>
+      </header>
+
+      <section className="mx-auto max-w-6xl px-6 pb-20 pt-24 text-center">
+        <p className="mx-auto w-fit rounded-full border border-sky-800/60 bg-sky-950/30 px-4 py-1 text-xs font-medium text-sky-300">
+          An accelerator for LinkedIn launches
+        </p>
+        <h1 className="mx-auto mt-6 max-w-3xl text-5xl font-black leading-[1.1] tracking-tight sm:text-6xl">
+          Stop posting into the void.
+          <br />
+          <span className="bg-gradient-to-r from-sky-400 to-cyan-300 bg-clip-text text-transparent">
+            Launch to people who&apos;ll care.
+          </span>
+        </h1>
+        <p className="mx-auto mt-6 max-w-xl text-lg text-zinc-400">
+          Signal/in maps your real LinkedIn audience, writes launch posts for each niche,
+          and wind-tunnel tests every variant with AI agents — before you hit post.
+        </p>
+        <div className="mt-8 flex items-center justify-center gap-3">
+          <Link
+            href="/app"
+            className="rounded-lg bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-400"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
+            Map my audience →
+          </Link>
           <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#how"
+            className="rounded-lg border border-zinc-700 px-6 py-3 font-semibold text-zinc-300 transition hover:border-zinc-500"
           >
-            Documentation
+            How it works
           </a>
         </div>
-      </main>
+      </section>
+
+      <section id="how" className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {steps.map((s) => (
+            <div
+              key={s.n}
+              className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-7 transition hover:border-zinc-700"
+            >
+              <p className="font-mono text-xs text-sky-400">
+                {s.n} — {s.name.toUpperCase()}
+              </p>
+              <h3 className="mt-3 text-xl font-bold">{s.title}</h3>
+              <p className="mt-2 leading-relaxed text-zinc-400">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-t border-zinc-900 py-16 text-center">
+        <h2 className="text-2xl font-bold">Your next launch deserves a wind tunnel.</h2>
+        <Link
+          href="/app"
+          className="mt-6 inline-block rounded-lg bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-400"
+        >
+          Get started free
+        </Link>
+        <p className="mt-8 text-xs text-zinc-600">
+          Signal/in — audience intelligence for LinkedIn creators.
+        </p>
+      </section>
     </div>
   );
 }
