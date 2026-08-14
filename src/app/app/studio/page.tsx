@@ -22,7 +22,7 @@ export default async function StudioPage() {
         </p>
         <Link
           href="/app/audience"
-          className="mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
+          className="btn-press mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
         >
           Go to Audience map
         </Link>
@@ -66,7 +66,7 @@ export default async function StudioPage() {
             </h2>
             <Link
               href="/app/windtunnel"
-              className="rounded-xl bg-ink px-6 py-3 text-sm font-semibold text-paper shadow-card transition hover:bg-black"
+              className="btn-press rounded-xl bg-ink px-6 py-3 text-sm font-semibold text-paper shadow-card transition hover:bg-black"
             >
               Next: test in the wind tunnel →
             </Link>

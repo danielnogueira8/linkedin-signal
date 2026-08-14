@@ -26,7 +26,7 @@ export default async function WindTunnelPage() {
         <p className="mt-2 text-ink-soft">Generate variants in the creative studio first.</p>
         <Link
           href="/app/studio"
-          className="mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
+          className="btn-press mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
         >
           Go to Creative studio
         </Link>
@@ -94,7 +94,7 @@ export default async function WindTunnelPage() {
           <div className="px-6 pb-5">
             <Link
               href="/app/deploy"
-              className="inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-cobalt-deep"
+              className="btn-press inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-cobalt-deep"
             >
               Next: deploy →
             </Link>

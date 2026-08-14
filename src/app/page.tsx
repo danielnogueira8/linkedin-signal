@@ -91,7 +91,8 @@ function HeroDemo() {
 export default function Landing() {
   return (
     <div className="min-h-screen">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <header className="chrome sticky top-0 z-40">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-cobalt font-display text-lg font-bold text-white shadow-card">
             S
@@ -100,12 +101,13 @@ export default function Landing() {
             Signal<span className="text-cobalt">/in</span>
           </span>
         </div>
-        <Link
-          href="/app"
-          className="rounded-xl bg-ink px-5 py-2.5 text-sm font-semibold text-paper shadow-card transition hover:bg-black"
-        >
-          Open the app
-        </Link>
+          <Link
+            href="/app"
+            className="btn-press rounded-xl bg-ink px-5 py-2.5 text-sm font-semibold text-paper shadow-card hover:bg-black"
+          >
+            Open the app
+          </Link>
+        </div>
       </header>
 
       <section className="mx-auto grid max-w-6xl items-center gap-14 px-6 pb-24 pt-16 lg:grid-cols-[1.1fr_1fr]">
@@ -124,13 +126,13 @@ export default function Landing() {
           <div className="rise rise-3 mt-8 flex items-center gap-3">
             <Link
               href="/app"
-              className="rounded-xl bg-cobalt px-7 py-3.5 font-semibold text-white shadow-card transition hover:bg-cobalt-deep"
+              className="btn-press rounded-xl bg-cobalt px-7 py-3.5 font-semibold text-white shadow-card transition hover:bg-cobalt-deep"
             >
               Map my audience →
             </Link>
             <a
               href="#how"
-              className="rounded-xl border border-line-strong bg-surface px-7 py-3.5 font-semibold text-ink shadow-card transition hover:border-ink-faint"
+              className="btn-press rounded-xl border border-line-strong bg-surface px-7 py-3.5 font-semibold text-ink shadow-card transition hover:border-ink-faint"
             >
               How it works
             </a>
@@ -166,7 +168,7 @@ export default function Landing() {
         </h2>
         <Link
           href="/app"
-          className="mt-7 inline-block rounded-xl bg-cobalt px-7 py-3.5 font-semibold text-white shadow-card transition hover:bg-cobalt-deep"
+          className="btn-press mt-7 inline-block rounded-xl bg-cobalt px-7 py-3.5 font-semibold text-white shadow-card transition hover:bg-cobalt-deep"
         >
           Get started free
         </Link>

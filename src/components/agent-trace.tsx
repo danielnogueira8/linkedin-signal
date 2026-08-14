@@ -90,7 +90,7 @@ export function AgentTrace({ handle, label }: { handle: JobHandle; label: string
 
   if (job.status === "error") {
     return (
-      <div className="mt-4 rounded-2xl border border-ember/30 bg-ember-soft px-4 py-3 text-sm text-ink">
+      <div className="trace-card mt-4 rounded-2xl border border-ember/30 bg-ember-soft px-4 py-3 text-sm text-ink">
         <span className="font-mono text-[11px] uppercase tracking-wide text-ember">
           Agent stopped
         </span>
@@ -102,7 +102,7 @@ export function AgentTrace({ handle, label }: { handle: JobHandle; label: string
   const expanded = !collapsed;
 
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
+    <div className="trace-card mt-4 overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="flex w-full items-center gap-3 px-4 py-3 text-left"

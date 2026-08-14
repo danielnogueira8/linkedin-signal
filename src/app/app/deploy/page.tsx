@@ -34,7 +34,7 @@ export default async function DeployPage() {
         </p>
         <Link
           href="/app/windtunnel"
-          className="mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
+          className="btn-press mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
         >
           Go to Wind tunnel
         </Link>
