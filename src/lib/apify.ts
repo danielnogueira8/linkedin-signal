@@ -44,7 +44,7 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
     .call({
       targetUrls: [linkedinUrl],
       maxPosts: MAX_POSTS,
-      postedLimit: "1y",
+      postedLimit: "year",
       includeReposts: false,
       includeQuotePosts: false,
       scrapeReactions: true,
