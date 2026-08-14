@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { createJob, runJob } from "@/lib/jobs";
 import { runWindTunnel } from "@/lib/windtunnel";
 import { demoSimulate } from "@/lib/demo-engine";
-import { isDemoMode } from "@/lib/claude";
+import { isDemoMode } from "@/lib/llm";
 
 export async function POST(request: NextRequest) {
   const { campaignId } = (await request.json()) as { campaignId?: number };

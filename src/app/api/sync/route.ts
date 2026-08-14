@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { createJob, runJob, completeJob } from "@/lib/jobs";
 import { syncWorkspace } from "@/lib/apify";
-import { isDemoMode } from "@/lib/claude";
+import { isDemoMode } from "@/lib/llm";
 import { ensureDemoWorkspace } from "@/lib/demo-data";
 
 export async function POST(request: NextRequest) {

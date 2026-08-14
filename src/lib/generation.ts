@@ -1,6 +1,6 @@
 import { db, campaigns, segments, variants, workspaces } from "@/db";
 import { eq } from "drizzle-orm";
-import { structured, SMART_MODEL } from "./claude";
+import { structured, SMART_MODEL } from "./llm";
 import { setProgress } from "./jobs";
 
 const HOOK_STYLES = ["contrarian", "story", "data-led", "direct-value"] as const;

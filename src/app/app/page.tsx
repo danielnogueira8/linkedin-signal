@@ -1,5 +1,5 @@
 import { getActiveWorkspace, getWorkspaceStats } from "@/lib/workspace";
-import { isDemoMode } from "@/lib/claude";
+import { isDemoMode } from "@/lib/llm";
 import { StepLabel, Chip } from "@/components/ui";
 import { SyncForm } from "./sync-form";
 

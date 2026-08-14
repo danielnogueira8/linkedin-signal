@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { createJob, runJob } from "@/lib/jobs";
 import { clusterAudience } from "@/lib/clustering";
 import { demoCluster } from "@/lib/demo-engine";
-import { isDemoMode } from "@/lib/claude";
+import { isDemoMode } from "@/lib/llm";
 
 export async function POST(request: NextRequest) {
   const { workspaceId } = (await request.json()) as { workspaceId?: number };

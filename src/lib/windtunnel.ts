@@ -12,7 +12,7 @@ import {
   type VariantResult,
 } from "@/db";
 import { eq, inArray } from "drizzle-orm";
-import { structured, SMART_MODEL, FAST_MODEL } from "./claude";
+import { structured, SMART_MODEL, FAST_MODEL } from "./llm";
 import { setProgress } from "./jobs";
 
 const PERSONAS_PER_SEGMENT = 6;

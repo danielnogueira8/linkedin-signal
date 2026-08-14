@@ -1,6 +1,6 @@
 import { db, engagers, segments, segmentMembers, type SegmentTraits } from "@/db";
 import { eq } from "drizzle-orm";
-import { structured, SMART_MODEL } from "./claude";
+import { structured, SMART_MODEL } from "./llm";
 import { setProgress } from "./jobs";
 import { clearSegmentation } from "./reset";
 

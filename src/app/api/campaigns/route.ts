@@ -3,7 +3,7 @@ import { db, campaigns } from "@/db";
 import { createJob, runJob } from "@/lib/jobs";
 import { generateVariants } from "@/lib/generation";
 import { demoGenerate } from "@/lib/demo-engine";
-import { isDemoMode } from "@/lib/claude";
+import { isDemoMode } from "@/lib/llm";
 
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as {
