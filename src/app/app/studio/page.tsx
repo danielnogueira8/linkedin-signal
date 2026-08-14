@@ -44,11 +44,12 @@ export default async function StudioPage() {
       <div className="rise">
         <StepLabel n="03">Creative studio</StepLabel>
         <h1 className="mt-3 font-display text-4xl font-bold tracking-tight">
-          One brief, five takes
+          Your post, five ways
         </h1>
         <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
-          Say what the post is about and pick a goal. The studio writes five hook-style takes
-          for your {audience.size}-person audience — then the AI Arena picks the strongest.
+          Brief the studio and it writes five takes in your voice — or paste your own draft
+          and get four variations of it. Either way, the AI Arena picks the strongest
+          against your {audience.size}-person audience.
         </p>
       </div>
 
@@ -82,7 +83,9 @@ export default async function StudioPage() {
                 key={v.id}
                 className="rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:shadow-pop"
               >
-                <Chip tone="cobalt">{v.hookStyle}</Chip>
+                <Chip tone={v.hookStyle === "original" ? "ember" : "cobalt"}>
+                  {v.hookStyle === "original" ? "✍️ your original" : v.hookStyle}
+                </Chip>
                 <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-soft">
                   {v.text}
                 </p>

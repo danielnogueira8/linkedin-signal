@@ -111,11 +111,35 @@ export async function demoGenerate(jobId: number, campaignId: number) {
   await db.delete(variants).where(eq(variants.campaignId, campaignId));
 
   const goal = goalFor(campaign.goal);
-  await setProgress(jobId, `Writing 5 takes for the ${goal.label} goal (demo engine)…`);
-
   const p = campaign.productName;
-  const firstLine = campaign.brief.split(".")[0];
   const cta = GOAL_CTAS[campaign.goal] ?? GOAL_CTAS.awareness;
+
+  // Draft mode: the user's own post is variant 1; variations remix it
+  if (campaign.mode === "draft") {
+    await setProgress(jobId, "Writing 4 variations of your draft (demo engine)…");
+    const draft = campaign.brief.trim();
+    const body = draft.split("\n").slice(1).join("\n").trim() || draft;
+    const draftTexts: Record<string, string> = {
+      original: draft,
+      contrarian: `Unpopular opinion:\n\nmost people get this completely backwards.\n\n${body}\n\n${cta}`,
+      story: `Three weeks ago this clicked for me.\n\n${body}\n\n${cta}`,
+      "data-led": `One number changed my mind on this:\n\n92% of posts like this get ignored — here's the version that doesn't.\n\n${body}\n\n${cta}`,
+      "direct-value": `If this is on your plate right now, read on.\n\n${body}\n\nNo guesswork. No posting into the void.\n\n${cta}`,
+    };
+    await db.insert(variants).values(
+      Object.entries(draftTexts).map(([hookStyle, text]) => ({
+        campaignId,
+        segmentId: audience.id,
+        hookStyle,
+        text,
+      })),
+    );
+    await db.update(campaigns).set({ status: "generated" }).where(eq(campaigns.id, campaignId));
+    return { campaignId, variants: 5 };
+  }
+
+  await setProgress(jobId, `Writing 5 takes for the ${goal.label} goal (demo engine)…`);
+  const firstLine = campaign.brief.split(".")[0];
 
   const texts: Record<string, string> = {
     contrarian: `Unpopular opinion:\n\nmost advice about ${p.toLowerCase()} is written for everyone —\nwhich means it lands with no one.\n\n${firstLine}.\n\nThe people who get this right don't work harder.\nThey just stopped guessing.\n\n${cta}`,
