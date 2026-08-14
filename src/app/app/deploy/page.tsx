@@ -3,6 +3,7 @@ import { eq, desc } from "drizzle-orm";
 import { getActiveWorkspace } from "@/lib/workspace";
 import { StepLabel, Chip, ConfidenceMeter } from "@/components/ui";
 import { CopyButton } from "./copy-button";
+import { LinkedInPost } from "@/components/linkedin-post";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -119,9 +120,23 @@ export default async function DeployPage() {
                   <CopyButton text={v.text} />
                 </span>
               </div>
-              <p className="whitespace-pre-wrap px-5 py-4 text-sm leading-relaxed text-ink">
-                {v.text}
-              </p>
+              <div className="max-w-xl px-5 py-4">
+                <LinkedInPost
+                  name={ws!.name ?? "You"}
+                  headline={ws!.headline}
+                  avatarUrl={ws!.avatarUrl}
+                  text={v.text}
+                  predicted={
+                    r
+                      ? {
+                          reactions: r.predictedReactions,
+                          comments: r.predictedComments,
+                          reposts: r.predictedReposts,
+                        }
+                      : undefined
+                  }
+                />
+              </div>
               {seg && (
                 <div className="border-t border-line px-5 py-3">
                   <a

@@ -4,6 +4,7 @@ import { getActiveWorkspace } from "@/lib/workspace";
 import { StepLabel, Chip } from "@/components/ui";
 import { goalFor } from "@/lib/goals";
 import { BriefForm } from "./brief-form";
+import { LinkedInPost } from "@/components/linkedin-post";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -77,18 +78,20 @@ export default async function StudioPage() {
             </Link>
           </div>
 
-          <div className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <div className="mt-5 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
             {vars.map((v) => (
-              <div
-                key={v.id}
-                className="rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:shadow-pop"
-              >
-                <Chip tone={v.hookStyle === "original" ? "ember" : "cobalt"}>
-                  {v.hookStyle === "original" ? "✍️ your original" : v.hookStyle}
-                </Chip>
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-soft">
-                  {v.text}
-                </p>
+              <div key={v.id}>
+                <div className="mb-2">
+                  <Chip tone={v.hookStyle === "original" ? "ember" : "cobalt"}>
+                    {v.hookStyle === "original" ? "✍️ your original" : v.hookStyle}
+                  </Chip>
+                </div>
+                <LinkedInPost
+                  name={ws.name ?? "You"}
+                  headline={ws.headline}
+                  avatarUrl={ws.avatarUrl}
+                  text={v.text}
+                />
               </div>
             ))}
           </div>

@@ -21,7 +21,7 @@ type HarvestPost = {
   linkedinUrl?: string;
   content?: string;
   postedAt?: { timestamp?: number | string; date?: string };
-  author?: { name?: string; info?: string; linkedinUrl?: string };
+  author?: { name?: string; info?: string; linkedinUrl?: string; avatar?: { url?: string } };
   engagement?: { likes?: number; comments?: number; shares?: number; reactions?: number };
   reactions?: HarvestReaction[];
   comments?: HarvestComment[];
@@ -77,12 +77,12 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
   if (!ws) {
     [ws] = await db
       .insert(workspaces)
-      .values({ linkedinUrl, name: author?.name, headline: author?.info, lastSyncedAt: new Date() })
+      .values({ linkedinUrl, name: author?.name, headline: author?.info, avatarUrl: author?.avatar?.url, lastSyncedAt: new Date() })
       .returning();
   } else {
     await db
       .update(workspaces)
-      .set({ name: author?.name ?? ws.name, headline: author?.info ?? ws.headline, lastSyncedAt: new Date() })
+      .set({ name: author?.name ?? ws.name, headline: author?.info ?? ws.headline, avatarUrl: author?.avatar?.url ?? ws.avatarUrl, lastSyncedAt: new Date() })
       .where(eq(workspaces.id, ws.id));
   }
 

@@ -3,6 +3,7 @@ import { eq, desc } from "drizzle-orm";
 import { getActiveWorkspace } from "@/lib/workspace";
 import { StepLabel, Chip, ConfidenceMeter, AgentAvatar } from "@/components/ui";
 import { SimulateButton } from "./simulate-button";
+import { LinkedInPost } from "@/components/linkedin-post";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -89,9 +90,23 @@ export default async function WindTunnelPage() {
               </span>
             )}
           </div>
-          <p className="max-w-2xl whitespace-pre-wrap px-6 py-5 text-sm leading-relaxed text-ink">
-            {overallWinner.text}
-          </p>
+          <div className="max-w-xl px-6 py-5">
+            <LinkedInPost
+              name={ws!.name ?? "You"}
+              headline={ws!.headline}
+              avatarUrl={ws!.avatarUrl}
+              text={overallWinner.text}
+              predicted={
+                overallResult
+                  ? {
+                      reactions: overallResult.predictedReactions,
+                      comments: overallResult.predictedComments,
+                      reposts: overallResult.predictedReposts,
+                    }
+                  : undefined
+              }
+            />
+          </div>
           <div className="px-6 pb-5">
             <Link
               href="/app/deploy"
