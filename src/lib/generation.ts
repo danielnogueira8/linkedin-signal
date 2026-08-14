@@ -40,7 +40,29 @@ export async function generateVariants(jobId: number, campaignId: number) {
     .map((c) => `${c.emoji} ${c.label} ${c.percent}%`)
     .join(" · ");
 
-  await setProgress(jobId, `Writing ${HOOK_STYLES.length} takes for your audience…`);
+  const isDraftMode = campaign.mode === "draft";
+  const variationStyles = isDraftMode ? HOOK_STYLES.slice(0, 4) : HOOK_STYLES;
+
+  await setProgress(
+    jobId,
+    isDraftMode
+      ? `Writing ${variationStyles.length} variations of your draft…`
+      : `Writing ${HOOK_STYLES.length} takes for your audience…`,
+  );
+
+  const task = isDraftMode
+    ? `THE CREATOR'S OWN DRAFT — this is the post they wrote and want to improve:
+
+---
+${campaign.brief}
+---
+
+Write ${variationStyles.length} VARIATIONS of this draft, one per hook style: ${variationStyles.join(", ")}.
+Rules for variations:
+- Preserve the draft's core message, claims, and any specific facts/numbers — do not invent new claims.
+- Change the hook, structure, and framing per the assigned style; tighten weak lines.
+- Stay in the creator's voice (see samples above if provided) — the variations should read like the creator rewrote their own post, not like someone else did.`
+    : `Write ${HOOK_STYLES.length} variants of this post, one per hook style: ${HOOK_STYLES.join(", ")}.`;
 
   const out = await structured<VariantOutput>({
     model: SMART_MODEL,
@@ -50,7 +72,7 @@ export async function generateVariants(jobId: number, campaignId: number) {
     prompt: `The creator${ws?.name ? ` (${ws.name} — ${ws.headline ?? ""})` : ""} wants to post about:
 
 Topic: ${campaign.productName}
-Brief: ${campaign.brief}
+${isDraftMode ? "" : `Brief: ${campaign.brief}`}
 ${
   voiceSamples
     ? `
@@ -73,12 +95,11 @@ How they consume content: ${audience.traits?.contentPreferences}
 What stops their scroll: ${audience.traits?.scrollStoppers}
 Tone guidance: ${audience.traits?.toneGuidance}
 
-Write ${HOOK_STYLES.length} variants of this post, one per hook style: ${HOOK_STYLES.join(", ")}.
+${task}
 - "contrarian": open by challenging a belief this audience holds
 - "story": open with a specific first-person moment
 - "data-led": open with a concrete number/result
-- "direct-value": open by naming the audience's pain and the payoff
-- "question": open with a question this audience genuinely argues about
+- "direct-value": open by naming the audience's pain and the payoff${isDraftMode ? "" : `\n- "question": open with a question this audience genuinely argues about`}
 
 Each post: 80-180 words (or the creator's typical length if their samples run consistently longer), aimed at the goal above, ending with the CTA style that goal calls for — phrased the way this creator phrases CTAs.`,
     schema: {
@@ -89,7 +110,7 @@ Each post: 80-180 words (or the creator's typical length if their samples run co
           items: {
             type: "object",
             properties: {
-              hookStyle: { type: "string", enum: [...HOOK_STYLES] },
+              hookStyle: { type: "string", enum: [...variationStyles] },
               text: { type: "string" },
             },
             required: ["hookStyle", "text"],
@@ -100,15 +121,20 @@ Each post: 80-180 words (or the creator's typical length if their samples run co
     },
   });
 
-  await db.insert(variants).values(
-    out.variants.map((v) => ({
+  // Draft mode: the creator's own post competes in the arena as-is
+  const rows = [
+    ...(isDraftMode
+      ? [{ campaignId, segmentId: audience.id, hookStyle: "original", text: campaign.brief }]
+      : []),
+    ...out.variants.map((v) => ({
       campaignId,
       segmentId: audience.id,
       hookStyle: v.hookStyle,
       text: v.text,
     })),
-  );
+  ];
+  await db.insert(variants).values(rows);
 
   await db.update(campaigns).set({ status: "generated" }).where(eq(campaigns.id, campaignId));
-  return { campaignId, variants: out.variants.length };
+  return { campaignId, variants: rows.length };
 }

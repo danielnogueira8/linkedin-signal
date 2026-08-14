@@ -110,7 +110,8 @@ export const campaigns = pgTable("campaigns", {
     .notNull()
     .references(() => workspaces.id),
   productName: text("product_name").notNull(), // display: the post's topic
-  brief: text("brief").notNull(),
+  brief: text("brief").notNull(), // brief mode: the brief; draft mode: the user's own post
+  mode: text("mode").notNull().default("brief"), // brief | draft
   goal: text("goal").notNull().default("awareness"),
   status: text("status").notNull().default("draft"), // draft | generated | simulated
   createdAt: timestamp("created_at")
