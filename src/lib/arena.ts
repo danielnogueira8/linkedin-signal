@@ -213,6 +213,20 @@ Score honestly: scrollStop (do you pause?), readThrough (if paused, do you expan
   });
 }
 
+/**
+ * The persona panel scores with honest real-world probabilities (a great post
+ * stops ~35% of scrollers; 1-5% comment), so the raw weighted blend tops out
+ * around ~0.26. Rescale for display using the same anchors the judges hold:
+ * a typical decent post (raw ≈ 0.088) reads 50; exceptional (raw ≈ 0.258)
+ * reads 95. 80+ means "clearly above your usual bar", matching the critic.
+ */
+export function scaleEngagementIndex(rawBlend: number): number {
+  const TYPICAL = 0.088; // → 50
+  const EXCEPTIONAL = 0.258; // → 95
+  const scaled = 50 + ((rawBlend - TYPICAL) * (95 - 50)) / (EXCEPTIONAL - TYPICAL);
+  return Math.round(Math.max(2, Math.min(99, scaled)));
+}
+
 type Baseline = { reactions: number; comments: number };
 
 /** Median engagement of the creator's real scraped posts. */
@@ -282,7 +296,9 @@ function aggregate(
     predictedReactions: Math.round(reach * scrollStopRate * react),
     predictedComments: Math.round(reach * scrollStopRate * comment),
     predictedReposts: Math.round(reach * scrollStopRate * repost),
-    engagementIndex: Math.round((scrollStopRate * 0.2 + react * 0.25 + comment * 0.35 + repost * 0.2) * 100),
+    engagementIndex: scaleEngagementIndex(
+      scrollStopRate * 0.2 + react * 0.25 + comment * 0.35 + repost * 0.2,
+    ),
     confidence: round2(confidence),
     isWinner: false,
   };

@@ -18,6 +18,7 @@ import { eq, inArray } from "drizzle-orm";
 import { setProgress } from "./jobs";
 import { clearSegmentation } from "./reset";
 import { goalFor } from "./goals";
+import { scaleEngagementIndex } from "./arena";
 
 /**
  * Demo engine: deterministic stand-ins for the AI stages so the whole product
@@ -292,8 +293,8 @@ export async function demoSimulate(jobId: number, campaignId: number) {
       predictedReactions: Math.round(reach * scrollStopRate * react),
       predictedComments: Math.round(reach * scrollStopRate * comment),
       predictedReposts: Math.round(reach * scrollStopRate * repost),
-      engagementIndex: Math.round(
-        (scrollStopRate * 0.2 + react * 0.25 + comment * 0.35 + repost * 0.2) * 100,
+      engagementIndex: scaleEngagementIndex(
+        scrollStopRate * 0.2 + react * 0.25 + comment * 0.35 + repost * 0.2,
       ),
       confidence: round2(0.6 + rand() * 0.3),
       isWinner: false,
