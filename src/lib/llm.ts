@@ -5,6 +5,27 @@ export const FAST_MODEL = "openai/gpt-5.6-luna";
 
 type JsonSchema = Record<string, unknown>;
 
+/**
+ * OpenAI's structured outputs (strict mode) require every object node to set
+ * `additionalProperties: false` and list all properties in `required`.
+ * Normalize any schema to that form so call sites stay clean.
+ */
+function toStrictSchema(node: JsonSchema): JsonSchema {
+  const out: JsonSchema = { ...node };
+  if (out.type === "object" && out.properties && typeof out.properties === "object") {
+    const props = out.properties as Record<string, JsonSchema>;
+    out.properties = Object.fromEntries(
+      Object.entries(props).map(([k, v]) => [k, toStrictSchema(v)]),
+    );
+    out.additionalProperties = false;
+    out.required = Object.keys(props);
+  }
+  if (out.type === "array" && out.items && typeof out.items === "object") {
+    out.items = toStrictSchema(out.items as JsonSchema);
+  }
+  return out;
+}
+
 function apiKey(): string {
   const key = process.env.OPENROUTER_APY_KEY;
   if (!key) {
@@ -42,7 +63,7 @@ export async function structured<T>(opts: {
       ],
       response_format: {
         type: "json_schema",
-        json_schema: { name: opts.schemaName, schema: opts.schema },
+        json_schema: { name: opts.schemaName, strict: true, schema: toStrictSchema(opts.schema) },
       },
     }),
   });
