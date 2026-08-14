@@ -26,14 +26,21 @@ type HarvestPost = {
   reactions?: HarvestReaction[];
   comments?: HarvestComment[];
 };
+type HarvestActor = {
+  name?: string;
+  linkedinUrl?: string;
+  position?: string;
+  pictureUrl?: string;
+  picture?: { url?: string };
+};
 type HarvestReaction = {
   reactionType?: string;
-  actor?: { name?: string; linkedinUrl?: string; position?: string };
+  actor?: HarvestActor;
 };
 type HarvestComment = {
   commentary?: string;
   createdAt?: { timestamp?: number | string; date?: string };
-  actor?: { name?: string; linkedinUrl?: string; position?: string };
+  actor?: HarvestActor;
 };
 
 export async function syncWorkspace(jobId: number, linkedinUrl: string) {
@@ -86,8 +93,9 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
   // Accumulate engager events across posts, then bulk insert
   const byProfile = new Map<
     string,
-    { name: string; headline?: string; events: EngagementEvent[] }
+    { name: string; headline?: string; imageUrl?: string; events: EngagementEvent[] }
   >();
+  const actorImage = (a?: HarvestActor) => a?.pictureUrl || a?.picture?.url || undefined;
 
   let postCount = 0;
   for (const hp of harvestPosts) {
@@ -112,6 +120,7 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
       if (!url || !r.actor?.name) continue;
       const entry = byProfile.get(url) ?? { name: r.actor.name, headline: r.actor.position, events: [] };
       entry.headline ??= r.actor.position;
+      entry.imageUrl ??= actorImage(r.actor);
       entry.events.push({ postId: post.id, type: "reaction", reactionType: r.reactionType });
       byProfile.set(url, entry);
     }
@@ -120,6 +129,7 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
       if (!url || !c.actor?.name) continue;
       const entry = byProfile.get(url) ?? { name: c.actor.name, headline: c.actor.position, events: [] };
       entry.headline ??= c.actor.position;
+      entry.imageUrl ??= actorImage(c.actor);
       entry.events.push({
         postId: post.id,
         type: "comment",
@@ -141,6 +151,7 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
       profileUrl,
       name: e.name,
       headline: e.headline ?? null,
+      imageUrl: e.imageUrl ?? null,
       engagementScore: score(e.events),
       engagements: e.events,
     }));
