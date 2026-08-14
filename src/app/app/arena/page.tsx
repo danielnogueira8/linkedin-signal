@@ -65,7 +65,8 @@ export default async function WindTunnelPage() {
           </h1>
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
             {vars.length} takes tested by a persona panel sampled from your audience&apos;s real
-            composition — each agent scores scroll-stop, read-through and engagement intent.
+            composition. Predicted counts are calibrated to your recent posts&apos; actual
+            engagement — your median post is the baseline, and takes scale from there.
           </p>
         </div>
         <SimulateButton campaignId={campaign.id} hasResults={!!results} />

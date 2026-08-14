@@ -4,6 +4,7 @@ import {
   segments,
   segmentMembers,
   engagers,
+  posts,
   variants,
   simulations,
   personaScores,
@@ -200,6 +201,21 @@ export async function demoSimulate(jobId: number, campaignId: number) {
   });
   if (allVariants.length === 0) throw new Error("No variants — generate content first.");
 
+  // Calibration baseline: the creator's median real post engagement
+  const campaign = await db.query.campaigns.findFirst({ where: eq(campaigns.id, campaignId) });
+  const postRows = campaign
+    ? await db.query.posts.findMany({ where: eq(posts.workspaceId, campaign.workspaceId) })
+    : [];
+  const median = (xs: number[]) => {
+    const s = [...xs].sort((a, b) => a - b);
+    return s.length ? (s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2) : 0;
+  };
+  const reactionHistory = postRows.map((p) => p.reactionCount).filter((n) => n > 0);
+  const baseline =
+    reactionHistory.length >= 3
+      ? { reactions: median(reactionHistory), comments: Math.max(1, median(postRows.map((p) => p.commentCount))) }
+      : null;
+
   const segIds = [...new Set(allVariants.map((v) => v.segmentId))];
   const segs = await db.query.segments.findMany({ where: inArray(segments.id, segIds) });
   const [sim] = await db.insert(simulations).values({ campaignId, status: "running" }).returning();
@@ -282,6 +298,20 @@ export async function demoSimulate(jobId: number, campaignId: number) {
       confidence: round2(0.6 + rand() * 0.3),
       isWinner: false,
     });
+  }
+
+  // Calibrate absolute counts to the creator's median real post (see arena.ts)
+  if (baseline && results.length > 0) {
+    const meanOf = (f: (r: VariantResult) => number) =>
+      results.reduce((a, r) => a + f(r), 0) / results.length || 1;
+    const mR = meanOf((r) => r.predictedReactions);
+    const mC = meanOf((r) => r.predictedComments);
+    const mP = meanOf((r) => r.predictedReposts);
+    for (const r of results) {
+      r.predictedReactions = Math.round(baseline.reactions * (mR > 0 ? r.predictedReactions / mR : 1));
+      r.predictedComments = Math.round(baseline.comments * (mC > 0 ? r.predictedComments / mC : 1));
+      r.predictedReposts = Math.round(Math.max(baseline.reactions * 0.05, 1) * (mP > 0 ? r.predictedReposts / mP : 1));
+    }
   }
 
   for (const segId of segIds) {
