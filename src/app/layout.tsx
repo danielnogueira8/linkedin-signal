@@ -10,9 +10,9 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Signal/in — launch accelerator for LinkedIn",
+  title: "Signal/in — post with signal, not hope",
   description:
-    "Map your real LinkedIn audience, generate per-niche launch posts, and wind-tunnel test them with AI agents before you hit post.",
+    "Profile your real LinkedIn audience, write your post five ways for your goal, and wind-tunnel test every take with AI agents before you publish.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

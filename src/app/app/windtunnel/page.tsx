@@ -64,8 +64,8 @@ export default async function WindTunnelPage() {
             Pre-test before anything hits your feed
           </h1>
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
-            {vars.length} variants tested by synthetic agents built from your real engagers —
-            each one scores scroll-stop, read-through and engagement intent.
+            {vars.length} takes tested by a persona panel sampled from your audience&apos;s real
+            composition — each agent scores scroll-stop, read-through and engagement intent.
           </p>
         </div>
         <SimulateButton campaignId={campaign.id} hasResults={!!results} />
@@ -75,7 +75,7 @@ export default async function WindTunnelPage() {
         <div className="rise rise-1 mt-9 overflow-hidden rounded-2xl border border-cobalt/25 bg-surface shadow-pop">
           <div className="flex flex-wrap items-center gap-2 border-b border-line bg-cobalt-soft/60 px-6 py-3">
             <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-cobalt-deep">
-              🏆 Overall winner
+              🏆 Winner
             </span>
             <Chip tone="cobalt">
               {segById.get(overallWinner.segmentId)?.emoji}{" "}

@@ -15,7 +15,7 @@ import { eq, inArray } from "drizzle-orm";
 import { structured, SMART_MODEL, FAST_MODEL } from "./llm";
 import { setProgress } from "./jobs";
 
-const PERSONAS_PER_SEGMENT = 6;
+const PERSONAS_PER_SEGMENT = 8;
 
 type PersonaBatch = { personas: { name: string; headline: string; bio: string }[] };
 type ScoreOutput = PersonaScore & { rationale: string };
@@ -41,7 +41,7 @@ export async function runWindTunnel(jobId: number, campaignId: number) {
     // 1) Synthesize personas per segment, grounded in real member data
     const personasBySegment = new Map<number, Persona[]>();
     for (const seg of segs) {
-      await setProgress(jobId, `Synthesizing personas for ${seg.emoji} ${seg.name}…`);
+      await setProgress(jobId, `Synthesizing ${PERSONAS_PER_SEGMENT} audience agents…`);
       const memberRows = await db
         .select({ e: engagers })
         .from(segmentMembers)
@@ -62,10 +62,12 @@ export async function runWindTunnel(jobId: number, campaignId: number) {
         schemaName: "personas",
         system:
           "You create realistic synthetic LinkedIn user personas for content testing. Personas must be grounded in the real audience sample provided — same roles, seniority mix, and interests — but fictional individuals.",
-        prompt: `Create ${PERSONAS_PER_SEGMENT} distinct personas representing this niche:
+        prompt: `Create ${PERSONAS_PER_SEGMENT} distinct personas representing this audience:
 
 ${seg.emoji} ${seg.name} — ${seg.description}
 Traits: ${JSON.stringify(seg.traits)}
+
+IMPORTANT: sample personas PROPORTIONALLY to the composition percentages in the traits — if a group is 40% of the audience, roughly 40% of personas belong to it. The panel must feel like the real mix, not one archetype repeated.
 
 Real members (sample):
 ${sample}
@@ -105,7 +107,7 @@ Vary seniority, skepticism level, and scrolling behavior. bio: 2-3 sentences cov
       const personas = personasBySegment.get(variant.segmentId) ?? [];
       await setProgress(
         jobId,
-        `Wind tunnel: testing variant ${++vDone}/${allVariants.length} against ${personas.length} ${seg.name} agents…`,
+        `Wind tunnel: variant ${++vDone}/${allVariants.length} vs ${personas.length} audience agents…`,
       );
 
       const scores = await Promise.all(

@@ -35,10 +35,10 @@ export function ClusterButton({
         disabled={busy}
         className="rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-cobalt-deep disabled:opacity-50"
       >
-        {busy ? "Mapping…" : hasSegments ? "Re-map audience" : "Map my audience"}
+        {busy ? "Profiling…" : hasSegments ? "Rebuild profile" : "Build my profile"}
       </button>
       <div className="text-left">
-        <AgentTrace handle={handle} label="Clustering your engagers" />
+        <AgentTrace handle={handle} label="Profiling your audience" />
       </div>
     </div>
   );

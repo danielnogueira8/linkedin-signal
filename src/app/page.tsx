@@ -4,30 +4,30 @@ import { Chip, ConfidenceMeter, AgentAvatar } from "@/components/ui";
 const steps = [
   {
     n: "01",
-    name: "Audience map",
-    title: "See who actually engages with you",
-    body: "An agent pulls every reactor and commenter from your recent posts and clusters them into named niches — AI Builders, Talent Leaders, Founders & VC — with sizes, seniority and writing guidance.",
+    name: "Audience profile",
+    title: "Know who actually engages with you",
+    body: "An agent pulls every reactor and commenter from your recent posts and builds one living profile — the composition mix, seniority, what stops their scroll, and how to write for them.",
     tone: "cobalt" as const,
   },
   {
     n: "02",
     name: "Creative studio",
-    title: "Brief once, write for every niche",
-    body: "One launch brief in, a full variant matrix out: four hook styles per niche, every post written for one specific reader, formatted the way LinkedIn actually rewards.",
+    title: "Brief once, get five takes",
+    body: "Say what the post is about and pick a goal — awareness, authority, lead generation, or relatability. The studio writes five hook-style takes aimed at your audience and that goal.",
     tone: "teal" as const,
   },
   {
     n: "03",
     name: "Wind tunnel",
     title: "Pre-test before anything hits your feed",
-    body: "Synthetic agents grounded in your real engagers scroll past your drafts and score scroll-stop, read-through, and engagement intent. Winners picked with confidence scores.",
+    body: "A persona panel sampled from your audience's real composition scrolls past your drafts and scores scroll-stop, read-through, and engagement intent. One winner, with a confidence score.",
     tone: "ember" as const,
   },
   {
     n: "04",
     name: "Deploy",
     title: "Ship the winner, export the audience",
-    body: "Copy the winning post per niche with best-time-to-post guidance, and export each niche as a CSV — ready for ads, outreach, or your CRM.",
+    body: "Copy the winning post with best-time-to-post guidance, and export your engaged audience as a CSV — ready for ads, outreach, or your CRM.",
     tone: "cobalt" as const,
   },
 ];
@@ -49,16 +49,16 @@ function HeroDemo() {
         <ol className="mt-4 space-y-2.5 border-t border-line pt-4 text-[13px]">
           <li className="flex items-start gap-2.5">
             <span className="mt-0.5 text-teal">✓</span>
-            <span className="text-ink-soft">Mapped 1,284 engagers into 6 niches</span>
+            <span className="text-ink-soft">Profiled 1,284 engagers — 5 role groups</span>
           </li>
           <li className="flex items-start gap-2.5">
             <span className="mt-0.5 text-teal">✓</span>
-            <span className="text-ink-soft">Wrote 24 launch variants (4 hooks × 6 niches)</span>
+            <span className="text-ink-soft">Wrote 5 takes for the Authority goal</span>
           </li>
           <li className="flex items-start gap-2.5">
             <span className="mt-1 h-2 w-2 shrink-0 animate-pulse rounded-full bg-cobalt" />
             <span className="shimmer-text">
-              Testing variant 17/24 against AI Builders agents…
+              Testing take 4/5 against your audience panel…
             </span>
             <span className="ml-auto flex shrink-0 -space-x-1.5">
               {["nova", "atlas", "quill"].map((agent) => (
@@ -75,12 +75,12 @@ function HeroDemo() {
           <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-cobalt-deep">
             🏆 Winner
           </span>
-          <Chip tone="cobalt">🤖 AI Builders</Chip>
+          <Chip tone="cobalt">🎯 Your audience</Chip>
           <Chip>story</Chip>
         </div>
         <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-          &ldquo;Three weeks ago I watched a great product launch die on LinkedIn. 400
-          followers saw it. 6 reacted…&rdquo;
+          &ldquo;Three weeks ago I watched a great post die on LinkedIn. 400 followers saw
+          it. 6 reacted…&rdquo;
         </p>
         <div className="mt-4 flex items-center justify-between">
           <ConfidenceMeter value={0.84} />
@@ -118,15 +118,15 @@ export default function Landing() {
       <section className="mx-auto grid max-w-6xl items-center gap-14 px-6 pb-24 pt-16 lg:grid-cols-[1.1fr_1fr]">
         <div>
           <p className="rise w-fit rounded-full border border-cobalt/25 bg-cobalt-soft px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-cobalt-deep">
-            An agent fleet for LinkedIn launches
+            An agent fleet for LinkedIn creators
           </p>
           <h1 className="rise rise-1 mt-6 font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
-            Stop posting into the void. Launch to people who&apos;ll{" "}
+            Stop posting into the void. Write for people who&apos;ll{" "}
             <span className="text-cobalt">care</span>.
           </h1>
           <p className="rise rise-2 mt-6 max-w-lg text-lg leading-relaxed text-ink-soft">
-            Signal/in maps your real LinkedIn audience, writes launch posts for each niche,
-            and wind-tunnel tests every variant with AI agents — before you hit post.
+            Signal/in profiles your real LinkedIn audience, writes your post five ways for
+            your goal, and wind-tunnel tests every take with AI agents — before you hit post.
           </p>
           <div className="rise rise-3 mt-8 flex items-center gap-3">
             <Link
@@ -169,7 +169,7 @@ export default function Landing() {
 
       <section className="border-t border-line py-20 text-center">
         <h2 className="font-display text-3xl font-bold">
-          Your next launch deserves a wind tunnel.
+          Your next post deserves a wind tunnel.
         </h2>
         <Link
           href="/app"
