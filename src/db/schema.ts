@@ -1,24 +1,33 @@
-import { sqliteTable, text, integer, real, uniqueIndex } from "drizzle-orm/sqlite-core";
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  real,
+  timestamp,
+  jsonb,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
-export const workspaces = sqliteTable("workspaces", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const workspaces = pgTable("workspaces", {
+  id: serial("id").primaryKey(),
   linkedinUrl: text("linkedin_url").notNull(),
   name: text("name"),
   headline: text("headline"),
-  lastSyncedAt: integer("last_synced_at", { mode: "timestamp" }),
-  createdAt: integer("created_at", { mode: "timestamp" })
+  lastSyncedAt: timestamp("last_synced_at"),
+  createdAt: timestamp("created_at")
     .notNull()
     .$defaultFn(() => new Date()),
 });
 
-export const posts = sqliteTable("posts", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
   workspaceId: integer("workspace_id")
     .notNull()
     .references(() => workspaces.id),
   url: text("url").notNull(),
   text: text("text"),
-  postedAt: integer("posted_at", { mode: "timestamp" }),
+  postedAt: timestamp("posted_at"),
   reactionCount: integer("reaction_count").notNull().default(0),
   commentCount: integer("comment_count").notNull().default(0),
 });
@@ -31,10 +40,10 @@ export type EngagementEvent = {
   at?: string;
 };
 
-export const engagers = sqliteTable(
+export const engagers = pgTable(
   "engagers",
   {
-    id: integer("id").primaryKey({ autoIncrement: true }),
+    id: serial("id").primaryKey(),
     workspaceId: integer("workspace_id")
       .notNull()
       .references(() => workspaces.id),
@@ -43,7 +52,7 @@ export const engagers = sqliteTable(
     headline: text("headline"),
     // comments 3x, reposts 2x, reactions 1x, with recency decay
     engagementScore: real("engagement_score").notNull().default(0),
-    engagements: text("engagements", { mode: "json" })
+    engagements: jsonb("engagements")
       .$type<EngagementEvent[]>()
       .notNull()
       .default([]),
@@ -58,8 +67,8 @@ export type SegmentTraits = {
   toneGuidance: string;
 };
 
-export const segments = sqliteTable("segments", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const segments = pgTable("segments", {
+  id: serial("id").primaryKey(),
   workspaceId: integer("workspace_id")
     .notNull()
     .references(() => workspaces.id),
@@ -67,13 +76,13 @@ export const segments = sqliteTable("segments", {
   emoji: text("emoji").notNull().default("👥"),
   description: text("description").notNull(),
   size: integer("size").notNull().default(0),
-  traits: text("traits", { mode: "json" }).$type<SegmentTraits>(),
+  traits: jsonb("traits").$type<SegmentTraits>(),
 });
 
-export const segmentMembers = sqliteTable(
+export const segmentMembers = pgTable(
   "segment_members",
   {
-    id: integer("id").primaryKey({ autoIncrement: true }),
+    id: serial("id").primaryKey(),
     segmentId: integer("segment_id")
       .notNull()
       .references(() => segments.id),
@@ -84,8 +93,8 @@ export const segmentMembers = sqliteTable(
   (t) => [uniqueIndex("segment_members_uniq").on(t.segmentId, t.engagerId)],
 );
 
-export const campaigns = sqliteTable("campaigns", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const campaigns = pgTable("campaigns", {
+  id: serial("id").primaryKey(),
   workspaceId: integer("workspace_id")
     .notNull()
     .references(() => workspaces.id),
@@ -93,13 +102,13 @@ export const campaigns = sqliteTable("campaigns", {
   brief: text("brief").notNull(),
   goal: text("goal").notNull().default("launch"),
   status: text("status").notNull().default("draft"), // draft | generated | simulated
-  createdAt: integer("created_at", { mode: "timestamp" })
+  createdAt: timestamp("created_at")
     .notNull()
     .$defaultFn(() => new Date()),
 });
 
-export const variants = sqliteTable("variants", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const variants = pgTable("variants", {
+  id: serial("id").primaryKey(),
   campaignId: integer("campaign_id")
     .notNull()
     .references(() => campaigns.id),
@@ -129,14 +138,14 @@ export type SimulationResults = {
   overallWinnerVariantId: number | null;
 };
 
-export const simulations = sqliteTable("simulations", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const simulations = pgTable("simulations", {
+  id: serial("id").primaryKey(),
   campaignId: integer("campaign_id")
     .notNull()
     .references(() => campaigns.id),
   status: text("status").notNull().default("running"), // running | done | error
-  results: text("results", { mode: "json" }).$type<SimulationResults>(),
-  createdAt: integer("created_at", { mode: "timestamp" })
+  results: jsonb("results").$type<SimulationResults>(),
+  createdAt: timestamp("created_at")
     .notNull()
     .$defaultFn(() => new Date()),
 });
@@ -156,31 +165,31 @@ export type PersonaScore = {
   repost: number;
 };
 
-export const personaScores = sqliteTable("persona_scores", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const personaScores = pgTable("persona_scores", {
+  id: serial("id").primaryKey(),
   simulationId: integer("simulation_id")
     .notNull()
     .references(() => simulations.id),
   variantId: integer("variant_id")
     .notNull()
     .references(() => variants.id),
-  persona: text("persona", { mode: "json" }).$type<Persona>().notNull(),
-  scores: text("scores", { mode: "json" }).$type<PersonaScore>().notNull(),
+  persona: jsonb("persona").$type<Persona>().notNull(),
+  scores: jsonb("scores").$type<PersonaScore>().notNull(),
   rationale: text("rationale").notNull().default(""),
 });
 
-export const jobs = sqliteTable("jobs", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const jobs = pgTable("jobs", {
+  id: serial("id").primaryKey(),
   type: text("type").notNull(), // scrape | cluster | generate | simulate
   status: text("status").notNull().default("pending"), // pending | running | done | error
   progress: text("progress").notNull().default(""),
   error: text("error"),
-  payload: text("payload", { mode: "json" }).$type<Record<string, unknown>>(),
-  result: text("result", { mode: "json" }).$type<Record<string, unknown>>(),
-  createdAt: integer("created_at", { mode: "timestamp" })
+  payload: jsonb("payload").$type<Record<string, unknown>>(),
+  result: jsonb("result").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at")
     .notNull()
     .$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
+  updatedAt: timestamp("updated_at")
     .notNull()
     .$defaultFn(() => new Date()),
 });
