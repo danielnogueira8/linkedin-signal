@@ -20,7 +20,7 @@ function client() {
 type HarvestPost = {
   linkedinUrl?: string;
   content?: string;
-  postedAt?: { timestamp?: number; date?: string };
+  postedAt?: { timestamp?: number | string; date?: string };
   author?: { name?: string; info?: string; linkedinUrl?: string };
   engagement?: { likes?: number; comments?: number; shares?: number; reactions?: number };
   reactions?: HarvestReaction[];
@@ -32,7 +32,7 @@ type HarvestReaction = {
 };
 type HarvestComment = {
   commentary?: string;
-  createdAt?: { timestamp?: number };
+  createdAt?: { timestamp?: number | string; date?: string };
   actor?: { name?: string; linkedinUrl?: string; position?: string };
 };
 
@@ -91,16 +91,18 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
 
   let postCount = 0;
   for (const hp of harvestPosts) {
-    if (!hp.linkedinUrl) continue;
+    // Skip non-post activities (comment permalinks etc.) that the actor
+    // sometimes includes — they have no content/engagement of their own.
+    if (!hp.linkedinUrl || hp.linkedinUrl.includes("commentUrn")) continue;
     const [post] = await db
       .insert(posts)
       .values({
         workspaceId: ws.id,
         url: hp.linkedinUrl,
         text: hp.content ?? "",
-        postedAt: hp.postedAt?.timestamp ? new Date(hp.postedAt.timestamp) : null,
-        reactionCount: hp.engagement?.reactions ?? hp.engagement?.likes ?? 0,
-        commentCount: hp.engagement?.comments ?? 0,
+        postedAt: toDate(hp.postedAt),
+        reactionCount: toInt(hp.engagement?.reactions) || toInt(hp.engagement?.likes),
+        commentCount: toInt(hp.engagement?.comments),
       })
       .returning();
     postCount++;
@@ -122,7 +124,7 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
         postId: post.id,
         type: "comment",
         commentText: c.commentary?.slice(0, 500),
-        at: c.createdAt?.timestamp ? new Date(c.createdAt.timestamp).toISOString() : undefined,
+        at: toDate(c.createdAt)?.toISOString(),
       });
       byProfile.set(url, entry);
     }
@@ -148,6 +150,22 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
   }
 
   return { workspaceId: ws.id, posts: postCount, engagers: rows.length };
+}
+
+/** Live scrape data is messy: numbers arrive as strings, "", null. */
+function toInt(v: unknown): number {
+  const n = typeof v === "string" ? parseInt(v, 10) : typeof v === "number" ? v : NaN;
+  return Number.isFinite(n) ? n : 0;
+}
+
+function toDate(p?: { timestamp?: number | string; date?: string }): Date | null {
+  const ts = toInt(p?.timestamp);
+  if (ts > 0) return new Date(ts);
+  if (p?.date) {
+    const d = new Date(p.date);
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+  return null;
 }
 
 function score(events: EngagementEvent[]): number {
