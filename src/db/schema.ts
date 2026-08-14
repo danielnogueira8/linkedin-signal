@@ -50,6 +50,7 @@ export const engagers = pgTable(
     profileUrl: text("profile_url").notNull(),
     name: text("name").notNull(),
     headline: text("headline"),
+    imageUrl: text("image_url"),
     // comments 3x, reposts 2x, reactions 1x, with recency decay
     engagementScore: real("engagement_score").notNull().default(0),
     engagements: jsonb("engagements")

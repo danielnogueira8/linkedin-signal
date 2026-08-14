@@ -1,7 +1,8 @@
 import { db, segments, engagers } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { getActiveWorkspace } from "@/lib/workspace";
-import { StepLabel, AvatarDot } from "@/components/ui";
+import { StepLabel } from "@/components/ui";
+import { EngagerAvatar } from "@/components/engager-avatar";
 import { ClusterButton } from "./cluster-button";
 import Link from "next/link";
 
@@ -129,7 +130,7 @@ export default async function AudiencePage() {
             <ul className="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               {topEngagers.map((m) => (
                 <li key={m.id} className="flex items-center gap-2.5 text-sm">
-                  <AvatarDot name={m.name} />
+                  <EngagerAvatar name={m.name} imageUrl={m.imageUrl} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium text-ink">{m.name}</span>
                     {m.headline && (
