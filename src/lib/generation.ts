@@ -1,14 +1,79 @@
 import { db, campaigns, segments, variants, workspaces, posts } from "@/db";
 import { eq } from "drizzle-orm";
-import { structured, SMART_MODEL } from "./llm";
+import { structured, SMART_MODEL, FAST_MODEL } from "./llm";
 import { setProgress } from "./jobs";
 import { goalFor } from "./goals";
 
 const HOOK_STYLES = ["contrarian", "story", "data-led", "direct-value", "question"] as const;
 
+/** Takes scoring below this in the critic pass get one targeted rewrite. */
+const QUALITY_BAR = 80;
+
 type VariantOutput = {
   variants: { hookStyle: string; text: string }[];
 };
+
+type Critique = { score: number; weaknesses: string[]; strongestLine: string };
+
+async function critiqueTake(text: string, audienceContext: string): Promise<Critique> {
+  return structured<Critique>({
+    model: FAST_MODEL,
+    maxTokens: 1200,
+    schemaName: "take_critique",
+    system: `You are the harshest judge on a LinkedIn content panel. You score posts 0-100 for how a specific audience will actually receive them. Calibration: 50 = a decent post that gets average engagement; 80 = clearly above the creator's usual bar (would stop a busy reader mid-scroll AND feel personally aimed at them); 90+ = rare, screenshot-and-send quality. Most first drafts land 55-75. Judge the hook's first 210 characters hardest — that's all most people see.`,
+    prompt: `${audienceContext}
+
+Score this post for that audience:
+
+---
+${text}
+---
+
+weaknesses: 1-3 specific, fixable problems (name the exact line/phrase when possible). strongestLine: the single best line, verbatim.`,
+    schema: {
+      type: "object",
+      properties: {
+        score: { type: "integer" },
+        weaknesses: { type: "array", items: { type: "string" } },
+        strongestLine: { type: "string" },
+      },
+      required: ["score", "weaknesses", "strongestLine"],
+    },
+  });
+}
+
+async function rewriteTake(
+  v: { hookStyle: string; text: string },
+  critique: Critique,
+  audienceContext: string,
+  voiceSamples: string,
+): Promise<string> {
+  const out = await structured<{ text: string }>({
+    model: SMART_MODEL,
+    maxTokens: 2000,
+    schemaName: "rewritten_take",
+    system: `You are an elite LinkedIn ghostwriter fixing a specific draft. Keep the creator's voice, the "${v.hookStyle}" hook style, the core message, and all factual claims. Fix ONLY what the critique names. Keep what works — especially the strongest line.`,
+    prompt: `${audienceContext}
+${voiceSamples ? `\nCreator's voice samples:\n${voiceSamples}\n` : ""}
+Draft (scored ${critique.score}/100):
+---
+${v.text}
+---
+
+Critique to fix:
+${critique.weaknesses.map((w) => `- ${w}`).join("\n")}
+
+Strongest line (keep it): "${critique.strongestLine}"
+
+Rewrite the post to clear an 80/100 bar for this audience. Same message, sharper execution. No markdown syntax; short lines; the first 210 characters must stop the scroll.`,
+    schema: {
+      type: "object",
+      properties: { text: { type: "string" } },
+      required: ["text"],
+    },
+  });
+  return out.text;
+}
 
 export async function generateVariants(jobId: number, campaignId: number) {
   const campaign = await db.query.campaigns.findFirst({ where: eq(campaigns.id, campaignId) });
@@ -101,7 +166,9 @@ ${task}
 - "data-led": open with a concrete number/result
 - "direct-value": open by naming the audience's pain and the payoff${isDraftMode ? "" : `\n- "question": open with a question this audience genuinely argues about`}
 
-Each post: 80-180 words (or the creator's typical length if their samples run consistently longer), aimed at the goal above, ending with the CTA style that goal calls for — phrased the way this creator phrases CTAs.`,
+Each post: 80-180 words (or the creator's typical length if their samples run consistently longer), aimed at the goal above, ending with the CTA style that goal calls for — phrased the way this creator phrases CTAs.
+
+THE BAR: each take will be judged by a skeptical panel simulating this exact audience. A take passes only if a busy member of this audience would stop mid-scroll (first 210 chars), read to the end, and feel the post was written for them specifically. Generic hooks, hedged claims, and interchangeable CTAs fail. Write every take to clear that bar.`,
     schema: {
       type: "object",
       properties: {
@@ -121,12 +188,39 @@ Each post: 80-180 words (or the creator's typical length if their samples run co
     },
   });
 
+  // Quality pass: a critic scores each take arena-style; weak takes get one
+  // targeted rewrite so the bar is enforced at writing time, not discovered
+  // in the arena. (The user's own draft is never rewritten.)
+  const audienceContext = `Audience: ${audience.description}
+Composition: ${composition}
+What stops their scroll: ${audience.traits?.scrollStoppers}
+Tone guidance: ${audience.traits?.toneGuidance}
+Goal: ${goal.label} — ${goal.guidance}`;
+
+  const refined: { hookStyle: string; text: string }[] = [];
+  let critiqued = 0;
+  for (const v of out.variants) {
+    critiqued++;
+    const critique = await critiqueTake(v.text, audienceContext);
+    if (critique.score >= QUALITY_BAR) {
+      await setProgress(jobId, `Quality pass ${critiqued}/${out.variants.length}: "${v.hookStyle}" scored ${critique.score} — pass`);
+      refined.push(v);
+      continue;
+    }
+    await setProgress(
+      jobId,
+      `Quality pass ${critiqued}/${out.variants.length}: "${v.hookStyle}" scored ${critique.score} — rewriting…`,
+    );
+    const rewritten = await rewriteTake(v, critique, audienceContext, voiceSamples);
+    refined.push({ hookStyle: v.hookStyle, text: rewritten });
+  }
+
   // Draft mode: the creator's own post competes in the arena as-is
   const rows = [
     ...(isDraftMode
       ? [{ campaignId, segmentId: audience.id, hookStyle: "original", text: campaign.brief }]
       : []),
-    ...out.variants.map((v) => ({
+    ...refined.map((v) => ({
       campaignId,
       segmentId: audience.id,
       hookStyle: v.hookStyle,

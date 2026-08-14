@@ -4,6 +4,7 @@ import {
   segments,
   segmentMembers,
   engagers,
+  posts,
   variants,
   simulations,
   personaScores,
@@ -31,6 +32,8 @@ export async function runArena(jobId: number, campaignId: number) {
 
   const segIds = [...new Set(allVariants.map((v) => v.segmentId))];
   const segs = await db.query.segments.findMany({ where: inArray(segments.id, segIds) });
+
+  const baseline = await historicalBaseline(campaign.workspaceId);
 
   const [sim] = await db
     .insert(simulations)
@@ -134,6 +137,10 @@ Vary seniority, skepticism level, and scrolling behavior. bio: 2-3 sentences cov
       results.push(aggregate(variant.id, seg.id, seg.size, scores));
     }
 
+    // Calibrate absolute predictions to the creator's real post history: the
+    // run-average take predicts ≈ their median post; better takes scale up.
+    calibratePredictions(results, baseline);
+
     // 3) Winners: best engagementIndex per segment + overall
     for (const segId of segIds) {
       const inSeg = results.filter((r) => r.segmentId === segId);
@@ -173,7 +180,13 @@ async function scorePersonaVariant(persona: Persona, postText: string): Promise<
     model: FAST_MODEL,
     maxTokens: 1000,
     schemaName: "engagement_prediction",
-    system: `You simulate ONE specific LinkedIn user scrolling their feed. Stay ruthlessly in character — most posts get scrolled past. Be calibrated: average posts score low; only content precisely aimed at this person scores high. Scores are probabilities 0-1.`,
+    system: `You simulate ONE specific LinkedIn user scrolling their feed. Stay ruthlessly in character — most posts get scrolled past. Scores are probabilities 0-1.
+
+CALIBRATION — hold this scale or your scores are useless:
+- A typical decent post: scrollStop 0.15-0.35, readThrough 0.3-0.5 (of those who stop), react 0.05-0.15, comment 0.01-0.05, repost 0.005-0.02.
+- Only a post you would genuinely screenshot-and-send scores scrollStop above 0.6.
+- Commenting is rare and costly: reserve comment > 0.3 for posts that hit YOUR specific situation dead-on.
+- If you're unsure, score LOWER. Generous scoring is a failure mode.`,
     prompt: `You are:
 ${persona.name} — ${persona.headline}
 ${persona.bio}
@@ -198,6 +211,46 @@ Score honestly: scrollStop (do you pause?), readThrough (if paused, do you expan
       required: ["scrollStop", "readThrough", "react", "comment", "repost", "rationale"],
     },
   });
+}
+
+type Baseline = { reactions: number; comments: number };
+
+/** Median engagement of the creator's real scraped posts. */
+async function historicalBaseline(workspaceId: number): Promise<Baseline | null> {
+  const rows = await db.query.posts.findMany({ where: eq(posts.workspaceId, workspaceId) });
+  const reactions = rows.map((p) => p.reactionCount).filter((n) => n > 0);
+  if (reactions.length < 3) return null; // not enough history to calibrate
+  const comments = rows.map((p) => p.commentCount);
+  return { reactions: median(reactions), comments: Math.max(1, median(comments)) };
+}
+
+function median(xs: number[]): number {
+  const s = [...xs].sort((a, b) => a - b);
+  return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
+}
+
+/**
+ * Re-anchor absolute counts: predictions scale off the creator's median post
+ * (their audience's demonstrated behavior) by each take's performance relative
+ * to the run average, instead of an invented reach multiplier.
+ */
+function calibratePredictions(results: VariantResult[], baseline: Baseline | null) {
+  if (!baseline || results.length === 0) return; // keep uncalibrated fallback
+  const meanOf = (f: (r: VariantResult) => number) =>
+    results.reduce((a, r) => a + f(r), 0) / results.length || 1;
+  const meanReact = meanOf((r) => r.predictedReactions);
+  const meanComment = meanOf((r) => r.predictedComments);
+  const meanRepost = meanOf((r) => r.predictedReposts);
+
+  for (const r of results) {
+    const relReact = meanReact > 0 ? r.predictedReactions / meanReact : 1;
+    const relComment = meanComment > 0 ? r.predictedComments / meanComment : 1;
+    const relRepost = meanRepost > 0 ? r.predictedReposts / meanRepost : 1;
+    r.predictedReactions = Math.round(baseline.reactions * relReact);
+    r.predictedComments = Math.round(baseline.comments * relComment);
+    // repost history isn't scraped; anchor to a conservative share of reactions
+    r.predictedReposts = Math.round(Math.max(baseline.reactions * 0.05, 1) * relRepost);
+  }
 }
 
 function aggregate(
