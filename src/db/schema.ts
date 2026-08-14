@@ -14,6 +14,7 @@ export const workspaces = pgTable("workspaces", {
   linkedinUrl: text("linkedin_url").notNull(),
   name: text("name"),
   headline: text("headline"),
+  avatarUrl: text("avatar_url"),
   lastSyncedAt: timestamp("last_synced_at"),
   createdAt: timestamp("created_at")
     .notNull()
