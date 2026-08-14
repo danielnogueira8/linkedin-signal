@@ -1,4 +1,4 @@
-import { db, campaigns, segments, variants, workspaces } from "@/db";
+import { db, campaigns, segments, variants, workspaces, posts } from "@/db";
 import { eq } from "drizzle-orm";
 import { structured, SMART_MODEL } from "./llm";
 import { setProgress } from "./jobs";
@@ -22,6 +22,19 @@ export async function generateVariants(jobId: number, campaignId: number) {
   // Fresh generation replaces previous variants
   await db.delete(variants).where(eq(variants.campaignId, campaignId));
 
+  // The creator's real posts are the voice reference — favor the ones their
+  // audience actually engaged with.
+  const ownPosts = await db.query.posts.findMany({
+    where: eq(posts.workspaceId, campaign.workspaceId),
+    orderBy: (p, { desc }) => [desc(p.reactionCount)],
+    limit: 8,
+  });
+  const voiceSamples = ownPosts
+    .filter((p) => (p.text ?? "").trim().length > 60)
+    .slice(0, 6)
+    .map((p, i) => `--- Post ${i + 1} (${p.reactionCount} reactions, ${p.commentCount} comments) ---\n${p.text!.slice(0, 900)}`)
+    .join("\n\n");
+
   const goal = goalFor(campaign.goal);
   const composition = (audience.traits?.composition ?? [])
     .map((c) => `${c.emoji} ${c.label} ${c.percent}%`)
@@ -33,11 +46,20 @@ export async function generateVariants(jobId: number, campaignId: number) {
     model: SMART_MODEL,
     maxTokens: 6144,
     schemaName: "post_variants",
-    system: `You are an elite LinkedIn ghostwriter. You write posts that feel human and specific, never generic. LinkedIn formatting rules: short lines, generous whitespace, no markdown syntax (no **, no #), hooks must survive the "...see more" fold (first ~210 chars decide everything). Never use hashtag spam; at most 0-3 relevant hashtags at the end, often none.`,
+    system: `You are an elite LinkedIn ghostwriter. Your defining skill is voice-matching: given samples of a creator's real posts, you write new posts indistinguishable from theirs — same cadence, line-break rhythm, sentence length, vocabulary, emoji and punctuation habits, and level of formality. You never impose a house style over the creator's own. LinkedIn formatting rules: short lines, generous whitespace, no markdown syntax (no **, no #), hooks must survive the "...see more" fold (first ~210 chars decide everything). Never use hashtag spam; at most 0-3 relevant hashtags at the end, often none.`,
     prompt: `The creator${ws?.name ? ` (${ws.name} — ${ws.headline ?? ""})` : ""} wants to post about:
 
 Topic: ${campaign.productName}
 Brief: ${campaign.brief}
+${
+  voiceSamples
+    ? `
+THE CREATOR'S VOICE — these are their real recent posts. Study how they actually write: hook style, cadence, line breaks, sentence length, emoji/punctuation habits, how they open and close. Every variant must sound like THIS person wrote it, not a generic ghostwriter. Match their voice; never copy their content.
+
+${voiceSamples}
+`
+    : ""
+}
 
 Post goal: ${goal.label} — ${goal.tagline}.
 ${goal.guidance}
@@ -58,7 +80,7 @@ Write ${HOOK_STYLES.length} variants of this post, one per hook style: ${HOOK_ST
 - "direct-value": open by naming the audience's pain and the payoff
 - "question": open with a question this audience genuinely argues about
 
-Each post: 80-180 words, aimed at the goal above, ending with the CTA style that goal calls for.`,
+Each post: 80-180 words (or the creator's typical length if their samples run consistently longer), aimed at the goal above, ending with the CTA style that goal calls for — phrased the way this creator phrases CTAs.`,
     schema: {
       type: "object",
       properties: {
