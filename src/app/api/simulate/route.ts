@@ -1,3 +1,5 @@
+// Allow long-running scrape/AI jobs to finish on Vercel (fluid compute)
+export const maxDuration = 300;
 import { NextRequest } from "next/server";
 import { createJob, runJob } from "@/lib/jobs";
 import { runWindTunnel } from "@/lib/windtunnel";

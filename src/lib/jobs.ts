@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { db, jobs } from "@/db";
 import { eq } from "drizzle-orm";
 
@@ -35,11 +36,13 @@ export async function getJob(jobId: number) {
 }
 
 /**
- * Fire-and-forget runner: the API route returns the job id immediately and the
- * work continues in this process; the UI polls /api/jobs/[id].
+ * Background runner: the API route returns the job id immediately and the UI
+ * polls /api/jobs/[id]. Work is scheduled via next/server's after() so
+ * serverless platforms (Vercel) keep the function alive until it finishes —
+ * a bare floating promise would be frozen as soon as the response is sent.
  */
 export function runJob(jobId: number, work: () => Promise<Record<string, unknown> | void>) {
-  void (async () => {
+  after(async () => {
     try {
       await setProgress(jobId, "Starting…");
       const result = await work();
@@ -48,5 +51,5 @@ export function runJob(jobId: number, work: () => Promise<Record<string, unknown
       console.error(`[job ${jobId}] failed:`, err);
       await failJob(jobId, err);
     }
-  })();
+  });
 }
