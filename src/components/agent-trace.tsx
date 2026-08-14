@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AgentAvatar } from "./ui";
 
 export type JobState = {
   id: number;
@@ -109,19 +110,21 @@ export function AgentTrace({ handle, label }: { handle: JobHandle; label: string
       >
         {running ? (
           <>
-            <PixelGrid />
+            <AgentAvatar seed={label} size={24} />
             <span className="shimmer-text text-sm font-medium">{label}…</span>
+            <PixelGrid />
             <span className="ml-auto font-mono text-[11px] tabular-nums text-ink-faint">
               {elapsed.toFixed(1)}s
             </span>
           </>
         ) : (
           <>
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-teal text-[9px] font-bold text-white">
-              ✓
-            </span>
+            <AgentAvatar seed={label} size={24} />
             <span className="text-sm font-medium text-ink">
               {label} — ran for {elapsed.toFixed(1)}s
+            </span>
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-teal text-[9px] font-bold text-white">
+              ✓
             </span>
             <span className="ml-auto font-mono text-[11px] text-ink-faint">
               {expanded ? "hide" : `${steps.length} steps`}

@@ -1,4 +1,28 @@
 import type { ReactNode } from "react";
+import { agentAvatarUri } from "@/lib/avatar";
+
+/** DiceBear thumbs face — the identity of a synthetic agent. Humans get AvatarDot. */
+export function AgentAvatar({
+  seed,
+  size = 28,
+  className = "",
+}: {
+  seed: string;
+  size?: number;
+  className?: string;
+}) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- local data URI, no optimization needed
+    <img
+      src={agentAvatarUri(seed)}
+      alt=""
+      aria-hidden
+      width={size}
+      height={size}
+      className={`shrink-0 rounded-full ${className}`}
+    />
+  );
+}
 
 /** Numbered mono step label, e.g. "02 / Audience map" */
 export function StepLabel({ n, children }: { n: string; children: ReactNode }) {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Chip, ConfidenceMeter } from "@/components/ui";
+import { Chip, ConfidenceMeter, AgentAvatar } from "@/components/ui";
 
 const steps = [
   {
@@ -59,6 +59,11 @@ function HeroDemo() {
             <span className="mt-1 h-2 w-2 shrink-0 animate-pulse rounded-full bg-cobalt" />
             <span className="shimmer-text">
               Testing variant 17/24 against AI Builders agents…
+            </span>
+            <span className="ml-auto flex shrink-0 -space-x-1.5">
+              {["nova", "atlas", "quill"].map((agent) => (
+                <AgentAvatar key={agent} seed={agent} size={20} className="ring-2 ring-surface" />
+              ))}
             </span>
           </li>
         </ol>

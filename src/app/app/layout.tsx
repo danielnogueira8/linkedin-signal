@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AgentAvatar } from "@/components/ui";
 
 const nav = [
   { href: "/app", label: "Sync", step: "01" },
@@ -37,9 +38,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="mt-auto rounded-2xl border border-line bg-surface p-4 shadow-card">
-            <div className="pixel-grid mb-2">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <span key={i} />
+            <div className="mb-2.5 flex -space-x-1.5">
+              {["scout", "cartographer", "scribe", "pilot"].map((agent) => (
+                <AgentAvatar
+                  key={agent}
+                  seed={agent}
+                  size={22}
+                  className="ring-2 ring-surface"
+                />
               ))}
             </div>
             <p className="text-[11px] leading-relaxed text-ink-soft">
