@@ -123,7 +123,7 @@ export default async function AudiencePage() {
         <div className="mt-10">
           <Link
             href="/app/studio"
-            className="inline-block rounded-xl bg-ink px-6 py-3 text-sm font-semibold text-paper shadow-card transition hover:bg-black"
+            className="btn-press inline-block rounded-xl bg-ink px-6 py-3 text-sm font-semibold text-paper shadow-card transition hover:bg-black"
           >
             Next: brief the creative studio →
           </Link>
@@ -148,7 +148,7 @@ function EmptyState({
       <p className="mt-2 text-ink-soft">{body}</p>
       <Link
         href={cta.href}
-        className="mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
+        className="btn-press mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
       >
         {cta.label}
       </Link>

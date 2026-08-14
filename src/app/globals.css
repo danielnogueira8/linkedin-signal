@@ -24,12 +24,36 @@
 
   --shadow-card: 0 1px 2px rgb(27 26 22 / 0.04), 0 12px 32px -16px rgb(27 26 22 / 0.18);
   --shadow-pop: 0 1px 3px rgb(27 26 22 / 0.08), 0 20px 48px -20px rgb(27 26 22 / 0.28);
+
+  /* Strong easings — built-in CSS curves are too weak to feel intentional */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 body {
   background: var(--color-paper);
   color: var(--color-ink);
   font-feature-settings: "ss01", "cv05";
+}
+
+/* Large display type wants negative tracking; body stays near 0 */
+.font-display {
+  letter-spacing: -0.02em;
+}
+
+/* ---- press feedback: the interface confirms on pointer-down, not release ---- */
+
+button {
+  transition: transform 160ms var(--ease-out-strong);
+}
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.btn-press {
+  transition: transform 160ms var(--ease-out-strong);
+}
+.btn-press:active {
+  transform: scale(0.97);
 }
 
 /* ---- motion primitives ---- */
@@ -76,7 +100,7 @@ body {
 }
 
 .rise {
-  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise 0.55s var(--ease-out-strong) both;
 }
 .rise-1 { animation-delay: 0.06s; }
 .rise-2 { animation-delay: 0.14s; }
@@ -85,7 +109,20 @@ body {
 .rise-5 { animation-delay: 0.38s; }
 
 .trace-step {
-  animation: trace-in 0.35s ease-out both;
+  animation: trace-in 0.3s var(--ease-out-strong) both;
+}
+
+/* Trace card materializes on mount — never from nothing (scale ≥ 0.95) */
+.trace-card {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 250ms var(--ease-out-strong),
+    transform 250ms var(--ease-out-strong);
+  @starting-style {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
 }
 
 /* Active-step shimmer, beautifului-style */
@@ -125,6 +162,59 @@ body {
 .pixel-grid span:nth-child(7) { animation-delay: 0.72s; }
 .pixel-grid span:nth-child(8) { animation-delay: 0.84s; }
 .pixel-grid span:nth-child(9) { animation-delay: 0.96s; }
+
+/* Translucent chrome: content scrolls under a material layer */
+.chrome {
+  background: color-mix(in srgb, var(--color-paper) 72%, transparent);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+/* Reduced motion: gentler equivalents, not nothing — keep opacity, drop travel */
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .trace-step {
+    animation-duration: 0.2s;
+    animation-name: fade-only;
+  }
+  .trace-card {
+    transition: opacity 200ms ease;
+    @starting-style {
+      transform: none;
+    }
+  }
+  .shimmer-text {
+    animation: none;
+    color: var(--color-ink-soft);
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+  }
+  .pixel-grid span {
+    animation-duration: 2s;
+  }
+  button:active:not(:disabled),
+  .btn-press:active {
+    transform: none;
+  }
+}
+
+@keyframes fade-only {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .chrome {
+    background: var(--color-paper);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
 
 /* Subtle paper grain */
 .grain::before {
