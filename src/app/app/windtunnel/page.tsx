@@ -1,7 +1,7 @@
 import { db, campaigns, variants, segments, simulations, personaScores } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { getActiveWorkspace } from "@/lib/workspace";
-import { StepLabel, Chip, ConfidenceMeter, AvatarDot } from "@/components/ui";
+import { StepLabel, Chip, ConfidenceMeter, AgentAvatar } from "@/components/ui";
 import { SimulateButton } from "./simulate-button";
 import Link from "next/link";
 
@@ -200,7 +200,7 @@ export default async function WindTunnelPage() {
                 className="rounded-2xl border border-line bg-surface p-4 shadow-card"
               >
                 <div className="flex items-center gap-2.5">
-                  <AvatarDot name={s.persona.name} />
+                  <AgentAvatar seed={s.persona.name} size={32} />
                   <div className="min-w-0">
                     <p className="truncate text-xs font-semibold text-ink">{s.persona.name}</p>
                     <p className="truncate text-[11px] text-ink-faint">{s.persona.headline}</p>
