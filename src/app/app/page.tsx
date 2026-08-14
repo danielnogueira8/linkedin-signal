@@ -44,7 +44,7 @@ export default async function SyncPage() {
             <div className="mt-5 grid grid-cols-4 gap-3 text-center">
               <Stat label="Posts" value={stats.posts} />
               <Stat label="Engagers" value={stats.engagers} />
-              <Stat label="Niches" value={stats.segments} />
+              <Stat label="Profile" value={stats.segments} />
               <Stat label="Campaigns" value={stats.campaigns} />
             </div>
           </div>

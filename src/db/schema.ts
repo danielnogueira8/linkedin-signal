@@ -60,11 +60,21 @@ export const engagers = pgTable(
   (t) => [uniqueIndex("engagers_ws_profile").on(t.workspaceId, t.profileUrl)],
 );
 
+export type AudienceComposition = {
+  label: string;
+  emoji: string;
+  percent: number;
+};
+
 export type SegmentTraits = {
   seniority: string;
   industries: string[];
   contentPreferences: string;
   toneGuidance: string;
+  /** Role/interest mix of the single audience profile, percents summing ~100 */
+  composition?: AudienceComposition[];
+  /** What reliably makes this audience stop scrolling */
+  scrollStoppers?: string;
 };
 
 export const segments = pgTable("segments", {
@@ -98,9 +108,9 @@ export const campaigns = pgTable("campaigns", {
   workspaceId: integer("workspace_id")
     .notNull()
     .references(() => workspaces.id),
-  productName: text("product_name").notNull(),
+  productName: text("product_name").notNull(), // display: the post's topic
   brief: text("brief").notNull(),
-  goal: text("goal").notNull().default("launch"),
+  goal: text("goal").notNull().default("awareness"),
   status: text("status").notNull().default("draft"), // draft | generated | simulated
   createdAt: timestamp("created_at")
     .notNull()

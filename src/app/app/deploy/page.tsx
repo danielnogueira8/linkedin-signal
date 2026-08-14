@@ -42,27 +42,32 @@ export default async function DeployPage() {
     );
   }
 
-  const winners = await db.query.variants.findMany({
+  const allVariants = await db.query.variants.findMany({
     where: eq(variants.campaignId, campaign.id),
   });
-  const winning = winners.filter((v) => v.status === "winner");
   const segs = await db.query.segments.findMany({ where: eq(segments.workspaceId, ws!.id) });
   const segById = new Map(segs.map((s) => [s.id, s]));
   const resultByVariant = new Map(sim.results.variants.map((r) => [r.variantId, r]));
   const overallId = sim.results.overallWinnerVariantId;
 
-  const ordered = [...winning].sort((a, b) =>
-    a.id === overallId ? -1 : b.id === overallId ? 1 : 0,
-  );
+  // Winner first, then runner-ups by predicted engagement
+  const ordered = [...allVariants].sort((a, b) => {
+    if (a.id === overallId) return -1;
+    if (b.id === overallId) return 1;
+    return (
+      (resultByVariant.get(b.id)?.engagementIndex ?? 0) -
+      (resultByVariant.get(a.id)?.engagementIndex ?? 0)
+    );
+  });
 
   return (
     <div>
       <div className="rise">
         <StepLabel n="05">Deploy</StepLabel>
-        <h1 className="mt-3 font-display text-4xl font-bold tracking-tight">Ship the winners</h1>
+        <h1 className="mt-3 font-display text-4xl font-bold tracking-tight">Ship the winner</h1>
         <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
-          One winning post per niche, ready to paste into LinkedIn. Stagger them across the
-          week so each niche gets its own moment.
+          The take your audience panel scored highest, ready to paste into LinkedIn — plus
+          the runner-up takes if you&apos;d rather trust your gut.
         </p>
       </div>
 

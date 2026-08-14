@@ -1,19 +1,32 @@
-import { db, engagers, segments, segmentMembers, type SegmentTraits } from "@/db";
+import {
+  db,
+  engagers,
+  segments,
+  segmentMembers,
+  type SegmentTraits,
+  type AudienceComposition,
+} from "@/db";
 import { eq } from "drizzle-orm";
 import { structured, SMART_MODEL } from "./llm";
 import { setProgress } from "./jobs";
 import { clearSegmentation } from "./reset";
 
-type ClusterOutput = {
-  segments: {
-    name: string;
-    emoji: string;
-    description: string;
-    memberIndexes: number[];
-    traits: SegmentTraits;
-  }[];
+type ProfileOutput = {
+  description: string;
+  composition: AudienceComposition[];
+  seniority: string;
+  industries: string[];
+  contentPreferences: string;
+  toneGuidance: string;
+  scrollStoppers: string;
 };
 
+/**
+ * Synthesizes ONE audience profile from all engagers. LinkedIn posts go to
+ * everyone at once — so instead of splitting the audience into targeting
+ * buckets, we build a single rich profile whose composition mix later drives
+ * proportional persona sampling in the wind tunnel.
+ */
 export async function clusterAudience(jobId: number, workspaceId: number) {
   await setProgress(jobId, "Loading engagers…");
   const people = await db.query.engagers.findMany({
@@ -24,7 +37,7 @@ export async function clusterAudience(jobId: number, workspaceId: number) {
     throw new Error(`Only ${people.length} engagers found — sync your audience first.`);
   }
 
-  await setProgress(jobId, `Clustering ${people.length} engagers into niches with Claude…`);
+  await setProgress(jobId, `Profiling your ${people.length} engagers…`);
 
   const roster = people
     .map((p, i) => {
@@ -37,77 +50,89 @@ export async function clusterAudience(jobId: number, workspaceId: number) {
     })
     .join("\n");
 
-  const out = await structured<ClusterOutput>({
+  const out = await structured<ProfileOutput>({
     model: SMART_MODEL,
-    schemaName: "audience_segments",
+    schemaName: "audience_profile",
     system:
-      "You are an audience strategist. You cluster a LinkedIn creator's active engagers into distinct, actionable niches the creator can write for. Headlines encode role/industry — they are your primary signal; comment text reveals intent and voice.",
-    prompt: `Cluster these ${people.length} LinkedIn engagers into 4-7 distinct niches.
+      "You are an audience strategist. You synthesize a LinkedIn creator's active engagers into ONE sharp audience profile the creator can write for. Headlines encode role/industry — they are your primary signal; comment text reveals intent and voice.",
+    prompt: `Profile this audience of ${people.length} LinkedIn engagers as ONE audience.
 
 Rules:
-- Every engager index (0 to ${people.length - 1}) must appear in exactly one segment.
-- Segment names should be short and evocative (e.g. "AI Builders", "Talent & HR Leaders").
-- Descriptions: 1-2 sentences on who they are and why they follow this creator.
-- traits.seniority: one phrase. traits.industries: 2-4 items. traits.contentPreferences: how they consume (carousels? hot takes? data?). traits.toneGuidance: how to write for them.
+- description: 2-3 sentences — who this audience is and why they engage with this creator.
+- composition: 3-6 role/interest groups with emoji and integer percents summing to ~100, largest first (e.g. "AI Builders" 40%). This is a lens on the mix, not separate targets.
+- seniority: one phrase for the overall mix.
+- industries: 3-5 items.
+- contentPreferences: how they consume content (formats, depth, tone).
+- toneGuidance: how the creator should write for them.
+- scrollStoppers: what reliably makes this audience stop scrolling.
 
 Engagers:
 ${roster}`,
     schema: {
       type: "object",
       properties: {
-        segments: {
+        description: { type: "string" },
+        composition: {
           type: "array",
           items: {
             type: "object",
             properties: {
-              name: { type: "string" },
+              label: { type: "string" },
               emoji: { type: "string" },
-              description: { type: "string" },
-              memberIndexes: { type: "array", items: { type: "integer" } },
-              traits: {
-                type: "object",
-                properties: {
-                  seniority: { type: "string" },
-                  industries: { type: "array", items: { type: "string" } },
-                  contentPreferences: { type: "string" },
-                  toneGuidance: { type: "string" },
-                },
-                required: ["seniority", "industries", "contentPreferences", "toneGuidance"],
-              },
+              percent: { type: "integer" },
             },
-            required: ["name", "emoji", "description", "memberIndexes", "traits"],
+            required: ["label", "emoji", "percent"],
           },
         },
+        seniority: { type: "string" },
+        industries: { type: "array", items: { type: "string" } },
+        contentPreferences: { type: "string" },
+        toneGuidance: { type: "string" },
+        scrollStoppers: { type: "string" },
       },
-      required: ["segments"],
+      required: [
+        "description",
+        "composition",
+        "seniority",
+        "industries",
+        "contentPreferences",
+        "toneGuidance",
+        "scrollStoppers",
+      ],
     },
   });
 
-  await setProgress(jobId, "Saving segments…");
+  await setProgress(jobId, "Saving your audience profile…");
 
-  // Replace previous segmentation (cascades to derived variants/simulations)
+  // Replace previous profile (cascades to derived variants/simulations)
   await clearSegmentation(workspaceId);
 
-  let saved = 0;
-  for (const seg of out.segments) {
-    const validIndexes = seg.memberIndexes.filter((i) => i >= 0 && i < people.length);
-    if (validIndexes.length === 0) continue;
-    const [row] = await db
-      .insert(segments)
-      .values({
-        workspaceId,
-        name: seg.name,
-        emoji: seg.emoji,
-        description: seg.description,
-        size: validIndexes.length,
-        traits: seg.traits,
-      })
-      .returning();
+  const traits: SegmentTraits = {
+    seniority: out.seniority,
+    industries: out.industries,
+    contentPreferences: out.contentPreferences,
+    toneGuidance: out.toneGuidance,
+    composition: out.composition,
+    scrollStoppers: out.scrollStoppers,
+  };
+
+  const [row] = await db
+    .insert(segments)
+    .values({
+      workspaceId,
+      name: "Your audience",
+      emoji: "🎯",
+      description: out.description,
+      size: people.length,
+      traits,
+    })
+    .returning();
+
+  for (let i = 0; i < people.length; i += 200) {
     await db.insert(segmentMembers).values(
-      validIndexes.map((i) => ({ segmentId: row.id, engagerId: people[i].id })),
+      people.slice(i, i + 200).map((p) => ({ segmentId: row.id, engagerId: p.id })),
     );
-    saved++;
   }
 
-  return { workspaceId, segments: saved };
+  return { workspaceId, segments: 1, engagers: people.length };
 }
