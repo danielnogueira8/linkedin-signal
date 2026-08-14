@@ -2,6 +2,7 @@ import { ApifyClient } from "apify-client";
 import { db, workspaces, posts, engagers, type EngagementEvent } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { setProgress } from "./jobs";
+import { clearSegmentation } from "./reset";
 
 const PROFILE_POSTS_ACTOR = "harvestapi/linkedin-profile-posts";
 
@@ -86,7 +87,10 @@ export async function syncWorkspace(jobId: number, linkedinUrl: string) {
       .where(eq(workspaces.id, ws.id));
   }
 
-  // Reset previous sync for idempotent re-runs
+  // Reset previous sync for idempotent re-runs. The audience profile (and
+  // everything derived from it) references the old engager rows, so clear the
+  // segmentation first or the engager delete violates FK constraints.
+  await clearSegmentation(ws.id);
   await db.delete(posts).where(eq(posts.workspaceId, ws.id));
   await db.delete(engagers).where(eq(engagers.workspaceId, ws.id));
 
