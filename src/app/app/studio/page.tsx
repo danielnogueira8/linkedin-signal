@@ -48,7 +48,7 @@ export default async function StudioPage() {
         </h1>
         <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
           Say what the post is about and pick a goal. The studio writes five hook-style takes
-          for your {audience.size}-person audience — then the wind tunnel picks the strongest.
+          for your {audience.size}-person audience — then the AI Arena picks the strongest.
         </p>
       </div>
 
@@ -69,10 +69,10 @@ export default async function StudioPage() {
               </span>
             </h2>
             <Link
-              href="/app/windtunnel"
+              href="/app/arena"
               className="btn-press rounded-xl bg-ink px-6 py-3 text-sm font-semibold text-paper shadow-card hover:bg-black"
             >
-              Next: test in the wind tunnel →
+              Next: test in the AI Arena →
             </Link>
           </div>
 

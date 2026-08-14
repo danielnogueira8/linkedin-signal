@@ -138,7 +138,7 @@ export async function demoGenerate(jobId: number, campaignId: number) {
   return { campaignId, variants: 5 };
 }
 
-// ---------- wind tunnel ----------
+// ---------- AI Arena ----------
 
 const DEMO_PERSONA_NAMES = ["Alex", "Jordan", "Sam", "Riley", "Casey", "Morgan", "Devon", "Quinn"];
 const RATIONALES: Record<string, string[]> = {
@@ -186,7 +186,7 @@ export async function demoSimulate(jobId: number, campaignId: number) {
     const seg = segs.find((s) => s.id === variant.segmentId)!;
     await setProgress(
       jobId,
-      `Wind tunnel: take ${++vDone}/${allVariants.length} vs ${DEMO_PERSONA_NAMES.length} audience agents…`,
+      `AI Arena: take ${++vDone}/${allVariants.length} vs ${DEMO_PERSONA_NAMES.length} audience agents…`,
     );
     await new Promise((r) => setTimeout(r, 400)); // let the simulation breathe in the UI
 

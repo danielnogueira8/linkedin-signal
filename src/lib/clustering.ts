@@ -25,7 +25,7 @@ type ProfileOutput = {
  * Synthesizes ONE audience profile from all engagers. LinkedIn posts go to
  * everyone at once — so instead of splitting the audience into targeting
  * buckets, we build a single rich profile whose composition mix later drives
- * proportional persona sampling in the wind tunnel.
+ * proportional persona sampling in the AI Arena.
  */
 export async function clusterAudience(jobId: number, workspaceId: number) {
   await setProgress(jobId, "Loading engagers…");

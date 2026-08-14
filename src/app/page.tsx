@@ -18,7 +18,7 @@ const steps = [
   },
   {
     n: "03",
-    name: "Wind tunnel",
+    name: "AI Arena",
     title: "Pre-test before anything hits your feed",
     body: "A persona panel sampled from your audience's real composition scrolls past your drafts and scores scroll-stop, read-through, and engagement intent. One winner, with a confidence score.",
     tone: "ember" as const,
@@ -43,7 +43,7 @@ function HeroDemo() {
               <span key={i} />
             ))}
           </div>
-          <span className="shimmer-text text-sm font-medium">Wind tunnel running…</span>
+          <span className="shimmer-text text-sm font-medium">AI Arena running…</span>
           <span className="ml-auto font-mono text-[11px] tabular-nums text-ink-faint">4.1s</span>
         </div>
         <ol className="mt-4 space-y-2.5 border-t border-line pt-4 text-[13px]">
@@ -126,7 +126,7 @@ export default function Landing() {
           </h1>
           <p className="rise rise-2 mt-6 max-w-lg text-lg leading-relaxed text-ink-soft">
             Signal/in profiles your real LinkedIn audience, writes your post five ways for
-            your goal, and wind-tunnel tests every take with AI agents — before you hit post.
+            your goal, and battle-tests every take with AI agents — before you hit post.
           </p>
           <div className="rise rise-3 mt-8 flex items-center gap-3">
             <Link
@@ -169,7 +169,7 @@ export default function Landing() {
 
       <section className="border-t border-line py-20 text-center">
         <h2 className="font-display text-3xl font-bold">
-          Your next post deserves a wind tunnel.
+          Your next post deserves the AI Arena.
         </h2>
         <Link
           href="/app"

@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Signal/in — post with signal, not hope",
   description:
-    "Profile your real LinkedIn audience, write your post five ways for your goal, and wind-tunnel test every take with AI agents before you publish.",
+    "Profile your real LinkedIn audience, write your post five ways for your goal, and battle-test every take with AI agents before you publish.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
