@@ -20,7 +20,7 @@ const PERSONAS_PER_SEGMENT = 8;
 type PersonaBatch = { personas: { name: string; headline: string; bio: string }[] };
 type ScoreOutput = PersonaScore & { rationale: string };
 
-export async function runWindTunnel(jobId: number, campaignId: number) {
+export async function runArena(jobId: number, campaignId: number) {
   const campaign = await db.query.campaigns.findFirst({ where: eq(campaigns.id, campaignId) });
   if (!campaign) throw new Error("Campaign not found");
 
@@ -107,7 +107,7 @@ Vary seniority, skepticism level, and scrolling behavior. bio: 2-3 sentences cov
       const personas = personasBySegment.get(variant.segmentId) ?? [];
       await setProgress(
         jobId,
-        `Wind tunnel: variant ${++vDone}/${allVariants.length} vs ${personas.length} audience agents…`,
+        `AI Arena: variant ${++vDone}/${allVariants.length} vs ${personas.length} audience agents…`,
       );
 
       const scores = await Promise.all(

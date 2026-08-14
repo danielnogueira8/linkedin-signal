@@ -35,7 +35,7 @@ export function SimulateButton({
         disabled={busy}
         className="rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-cobalt-deep disabled:opacity-50"
       >
-        {busy ? "Simulating…" : hasResults ? "Re-run simulation" : "Run wind tunnel"}
+        {busy ? "Simulating…" : hasResults ? "Re-run simulation" : "Run AI Arena"}
       </button>
       <div className="text-left">
         <AgentTrace handle={handle} label="Testing variants against your audience" />

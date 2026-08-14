@@ -28,15 +28,15 @@ export default async function DeployPage() {
   if (!campaign || sim?.status !== "done" || !sim.results) {
     return (
       <div className="mx-auto mt-28 max-w-md text-center">
-        <h1 className="font-display text-2xl font-bold">Run the wind tunnel first</h1>
+        <h1 className="font-display text-2xl font-bold">Run the AI Arena first</h1>
         <p className="mt-2 text-ink-soft">
           Deploy shows your winning posts once the simulation has picked them.
         </p>
         <Link
-          href="/app/windtunnel"
+          href="/app/arena"
           className="btn-press mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
         >
-          Go to Wind tunnel
+          Go to AI Arena
         </Link>
       </div>
     );

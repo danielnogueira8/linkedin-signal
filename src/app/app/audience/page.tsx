@@ -49,7 +49,7 @@ export default async function AudiencePage() {
           </h1>
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
             {audience
-              ? `A living profile of the ${audience.size} people who actually engage with you — every post is written for them, and the wind tunnel samples its agents from this mix.`
+              ? `A living profile of the ${audience.size} people who actually engage with you — every post is written for them, and the AI Arena samples its agents from this mix.`
               : "An agent profiles the people who actually engage with you — who they are, what stops their scroll, and how to write for them."}
           </p>
         </div>

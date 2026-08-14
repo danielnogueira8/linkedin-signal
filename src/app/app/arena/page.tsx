@@ -59,7 +59,7 @@ export default async function WindTunnelPage() {
     <div>
       <div className="rise flex items-end justify-between gap-6">
         <div>
-          <StepLabel n="04">Wind tunnel</StepLabel>
+          <StepLabel n="04">AI Arena</StepLabel>
           <h1 className="mt-3 font-display text-4xl font-bold tracking-tight">
             Pre-test before anything hits your feed
           </h1>

@@ -6,7 +6,7 @@ const nav = [
   { href: "/app", label: "Sync", step: "01" },
   { href: "/app/audience", label: "Audience profile", step: "02" },
   { href: "/app/studio", label: "Creative studio", step: "03" },
-  { href: "/app/windtunnel", label: "Wind tunnel", step: "04" },
+  { href: "/app/arena", label: "AI Arena", step: "04" },
   { href: "/app/deploy", label: "Deploy", step: "05" },
 ];
 

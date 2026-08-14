@@ -3,7 +3,7 @@ import { thumbs } from "@dicebear/collection";
 
 /**
  * DiceBear "thumbs" faces are the visual identity of our synthetic agents —
- * wind-tunnel personas and the job-runner agents. Real humans (engagers) keep
+ * arena personas and the job-runner agents. Real humans (engagers) keep
  * initials dots; only agents get faces, so synthetic vs. real stays legible.
  *
  * Generated locally (no network) and returned as a data URI for <img>.
