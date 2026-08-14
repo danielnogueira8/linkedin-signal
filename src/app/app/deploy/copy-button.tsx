@@ -11,7 +11,9 @@ export function CopyButton({ text }: { text: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
       }}
-      className="shrink-0 rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-200 transition hover:border-sky-500 hover:text-sky-400"
+      className={`shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold shadow-card transition ${
+        copied ? "bg-teal text-white" : "bg-ink text-paper hover:bg-black"
+      }`}
     >
       {copied ? "Copied ✓" : "Copy post"}
     </button>

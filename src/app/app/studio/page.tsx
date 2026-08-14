@@ -1,6 +1,7 @@
 import { db, campaigns, variants, segments } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { getActiveWorkspace } from "@/lib/workspace";
+import { StepLabel, Chip } from "@/components/ui";
 import { BriefForm } from "./brief-form";
 import Link from "next/link";
 
@@ -14,16 +15,16 @@ export default async function StudioPage() {
 
   if (!ws || segs.length === 0) {
     return (
-      <div className="mx-auto mt-24 max-w-md text-center">
-        <h1 className="text-xl font-bold">Map your audience first</h1>
-        <p className="mt-2 text-zinc-400">
+      <div className="mx-auto mt-28 max-w-md text-center">
+        <h1 className="font-display text-2xl font-bold">Map your audience first</h1>
+        <p className="mt-2 text-ink-soft">
           The studio writes one variant set per niche — so we need your niches first.
         </p>
         <Link
           href="/app/audience"
-          className="mt-5 inline-block rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400"
+          className="mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
         >
-          Go to Audience Map
+          Go to Audience map
         </Link>
       </div>
     );
@@ -39,26 +40,35 @@ export default async function StudioPage() {
 
   return (
     <div>
-      <p className="font-mono text-xs text-sky-400">STEP 03 — CREATIVE STUDIO</p>
-      <h1 className="mt-2 text-3xl font-bold tracking-tight">Brief once, write for every niche</h1>
-      <p className="mt-3 max-w-xl text-zinc-400">
-        Describe what you&apos;re launching. The studio writes 4 hook-style variants for each of
-        your {segs.length} niches — every post aimed at one specific reader.
-      </p>
+      <div className="rise">
+        <StepLabel n="03">Creative studio</StepLabel>
+        <h1 className="mt-3 font-display text-4xl font-bold tracking-tight">
+          Brief once, write for every niche
+        </h1>
+        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
+          Describe what you&apos;re launching. The studio writes 4 hook-style variants for each
+          of your {segs.length} niches — every post aimed at one specific reader.
+        </p>
+      </div>
 
-      <BriefForm workspaceId={ws.id} existing={campaign ?? undefined} />
+      <div className="rise rise-1">
+        <BriefForm workspaceId={ws.id} existing={campaign ?? undefined} />
+      </div>
 
       {vars.length > 0 && campaign && (
-        <div className="mt-10">
+        <div className="mt-12">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">
-              {campaign.productName} — {vars.length} variants
+            <h2 className="font-display text-xl font-semibold">
+              {campaign.productName}
+              <span className="ml-3 align-middle">
+                <Chip tone="teal">{vars.length} variants</Chip>
+              </span>
             </h2>
             <Link
               href="/app/windtunnel"
-              className="rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400"
+              className="rounded-xl bg-ink px-6 py-3 text-sm font-semibold text-paper shadow-card transition hover:bg-black"
             >
-              Next: test in the Wind Tunnel →
+              Next: test in the wind tunnel →
             </Link>
           </div>
 
@@ -66,20 +76,18 @@ export default async function StudioPage() {
             const segVars = vars.filter((v) => v.segmentId === seg.id);
             if (segVars.length === 0) return null;
             return (
-              <div key={seg.id} className="mt-6">
-                <h3 className="text-sm font-semibold text-zinc-300">
+              <div key={seg.id} className="mt-8">
+                <h3 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
                   {seg.emoji} {seg.name}
                 </h3>
-                <div className="mt-2 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
                   {segVars.map((v) => (
                     <div
                       key={v.id}
-                      className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4"
+                      className="rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:shadow-pop"
                     >
-                      <span className="rounded-md bg-zinc-800 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-sky-400">
-                        {v.hookStyle}
-                      </span>
-                      <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-300">
+                      <Chip tone="cobalt">{v.hookStyle}</Chip>
+                      <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-soft">
                         {v.text}
                       </p>
                     </div>

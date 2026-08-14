@@ -1,6 +1,7 @@
 import { db, segments, segmentMembers, engagers } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { getActiveWorkspace } from "@/lib/workspace";
+import { StepLabel, Chip, AvatarDot } from "@/components/ui";
 import { ClusterButton } from "./cluster-button";
 import Link from "next/link";
 
@@ -31,7 +32,7 @@ export default async function AudiencePage() {
       .innerJoin(engagers, eq(segmentMembers.engagerId, engagers.id))
       .where(eq(segmentMembers.segmentId, seg.id))
       .orderBy(desc(engagers.engagementScore))
-      .limit(5);
+      .limit(4);
     membersBySegment.set(seg.id, rows);
   }
 
@@ -39,61 +40,69 @@ export default async function AudiencePage() {
 
   return (
     <div>
-      <div className="flex items-end justify-between">
+      <div className="rise flex items-end justify-between gap-6">
         <div>
-          <p className="font-mono text-xs text-sky-400">STEP 02 — AUDIENCE MAP</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight">Your audience, mapped</h1>
-          <p className="mt-3 max-w-xl text-zinc-400">
+          <StepLabel n="02">Audience map</StepLabel>
+          <h1 className="mt-3 font-display text-4xl font-bold tracking-tight">
+            Your audience, mapped
+          </h1>
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
             {segs.length > 0
               ? `${total} active engagers clustered into ${segs.length} niches. Every niche gets its own content in the next step.`
-              : "Cluster your engagers into interest-based niches with names, sizes and writing guidance."}
+              : "An agent clusters your engagers into interest-based niches with names, sizes and writing guidance."}
           </p>
         </div>
         <ClusterButton workspaceId={ws.id} hasSegments={segs.length > 0} />
       </div>
 
       {segs.length > 0 && (
-        <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {segs.map((seg) => (
-            <div key={seg.id} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+        <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {segs.map((seg, i) => (
+            <div
+              key={seg.id}
+              className={`rise rise-${Math.min(i + 1, 5)} rounded-2xl border border-line bg-surface p-6 shadow-card transition hover:shadow-pop`}
+            >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-lg font-semibold">
+                  <p className="font-display text-lg font-semibold">
                     <span className="mr-2">{seg.emoji}</span>
                     {seg.name}
                   </p>
-                  <p className="mt-1 text-sm text-zinc-400">{seg.description}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+                    {seg.description}
+                  </p>
                 </div>
-                <span className="ml-4 shrink-0 rounded-full bg-sky-500/10 px-3 py-1 text-sm font-bold text-sky-400">
+                <span className="ml-4 shrink-0 rounded-full bg-cobalt-soft px-3 py-1 font-mono text-sm font-bold text-cobalt-deep">
                   {seg.size}
                 </span>
               </div>
 
               {seg.traits && (
                 <div className="mt-4 flex flex-wrap gap-1.5">
-                  {[seg.traits.seniority, ...seg.traits.industries].map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-md bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-300"
-                    >
-                      {t}
-                    </span>
+                  <Chip tone="cobalt">{seg.traits.seniority}</Chip>
+                  {seg.traits.industries.map((t) => (
+                    <Chip key={t}>{t}</Chip>
                   ))}
                 </div>
               )}
 
-              <div className="mt-4 border-t border-zinc-800 pt-3">
-                <p className="text-[11px] uppercase tracking-wide text-zinc-500">Top engagers</p>
-                <ul className="mt-2 space-y-1.5">
+              <div className="mt-5 border-t border-line pt-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
+                  Top engagers
+                </p>
+                <ul className="mt-3 space-y-2.5">
                   {membersBySegment.get(seg.id)?.map((m) => (
-                    <li key={m.name} className="flex items-baseline justify-between gap-3 text-sm">
-                      <span className="truncate">
-                        <span className="text-zinc-200">{m.name}</span>
+                    <li key={m.name} className="flex items-center gap-2.5 text-sm">
+                      <AvatarDot name={m.name} />
+                      <span className="min-w-0 flex-1 truncate">
+                        <span className="font-medium text-ink">{m.name}</span>
                         {m.headline && (
-                          <span className="ml-2 text-xs text-zinc-500">{m.headline}</span>
+                          <span className="ml-2 text-xs text-ink-faint">{m.headline}</span>
                         )}
                       </span>
-                      <span className="shrink-0 font-mono text-xs text-zinc-500">{m.score}</span>
+                      <span className="shrink-0 font-mono text-xs tabular-nums text-ink-faint">
+                        {m.score}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -101,7 +110,7 @@ export default async function AudiencePage() {
 
               <a
                 href={`/api/export?segmentId=${seg.id}`}
-                className="mt-4 inline-block text-xs font-medium text-sky-400 hover:text-sky-300"
+                className="mt-4 inline-block font-mono text-[11px] font-medium text-cobalt hover:text-cobalt-deep"
               >
                 Export CSV ↓
               </a>
@@ -111,12 +120,12 @@ export default async function AudiencePage() {
       )}
 
       {segs.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-10">
           <Link
             href="/app/studio"
-            className="inline-block rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-400"
+            className="inline-block rounded-xl bg-ink px-6 py-3 text-sm font-semibold text-paper shadow-card transition hover:bg-black"
           >
-            Next: brief the Creative Studio →
+            Next: brief the creative studio →
           </Link>
         </div>
       )}
@@ -134,12 +143,12 @@ function EmptyState({
   cta: { href: string; label: string };
 }) {
   return (
-    <div className="mx-auto mt-24 max-w-md text-center">
-      <h1 className="text-xl font-bold">{title}</h1>
-      <p className="mt-2 text-zinc-400">{body}</p>
+    <div className="mx-auto mt-28 max-w-md text-center">
+      <h1 className="font-display text-2xl font-bold">{title}</h1>
+      <p className="mt-2 text-ink-soft">{body}</p>
       <Link
         href={cta.href}
-        className="mt-5 inline-block rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400"
+        className="mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
       >
         {cta.label}
       </Link>

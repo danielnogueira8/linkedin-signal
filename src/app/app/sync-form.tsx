@@ -2,17 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { JobProgress, useJob } from "@/components/job-progress";
+import { AgentTrace, useJob } from "@/components/agent-trace";
 
 export function SyncForm() {
   const [url, setUrl] = useState("");
   const [jobId, setJobId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const job = useJob(jobId, () => {
+  const handle = useJob(jobId, () => {
     router.refresh();
-    setTimeout(() => router.push("/app/audience"), 800);
+    setTimeout(() => router.push("/app/audience"), 900);
   });
+  const job = handle.job;
 
   const start = async () => {
     setError(null);
@@ -32,25 +33,25 @@ export function SyncForm() {
   const busy = job?.status === "pending" || job?.status === "running";
 
   return (
-    <div className="mt-6">
+    <div className="mt-7">
       <div className="flex gap-2">
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !busy && start()}
           placeholder="https://linkedin.com/in/your-profile"
-          className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-sky-500"
+          className="flex-1 rounded-xl border border-line bg-surface px-4 py-3 text-sm shadow-card outline-none transition placeholder:text-ink-faint focus:border-cobalt focus:ring-2 focus:ring-cobalt/15"
         />
         <button
           onClick={start}
           disabled={busy}
-          className="rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-400 disabled:opacity-50"
+          className="rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-cobalt-deep disabled:opacity-50"
         >
           {busy ? "Syncing…" : "Sync audience"}
         </button>
       </div>
-      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
-      <JobProgress job={job} label="Audience sync" />
+      {error && <p className="mt-3 text-sm text-ember">{error}</p>}
+      <AgentTrace handle={handle} label="Scraping your audience" />
     </div>
   );
 }

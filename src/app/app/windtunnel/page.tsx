@@ -1,6 +1,7 @@
 import { db, campaigns, variants, segments, simulations, personaScores } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { getActiveWorkspace } from "@/lib/workspace";
+import { StepLabel, Chip, ConfidenceMeter, AvatarDot } from "@/components/ui";
 import { SimulateButton } from "./simulate-button";
 import Link from "next/link";
 
@@ -20,14 +21,14 @@ export default async function WindTunnelPage() {
 
   if (!campaign || vars.length === 0) {
     return (
-      <div className="mx-auto mt-24 max-w-md text-center">
-        <h1 className="text-xl font-bold">Nothing to test yet</h1>
-        <p className="mt-2 text-zinc-400">Generate variants in the Creative Studio first.</p>
+      <div className="mx-auto mt-28 max-w-md text-center">
+        <h1 className="font-display text-2xl font-bold">Nothing to test yet</h1>
+        <p className="mt-2 text-ink-soft">Generate variants in the creative studio first.</p>
         <Link
           href="/app/studio"
-          className="mt-5 inline-block rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400"
+          className="mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
         >
-          Go to Creative Studio
+          Go to Creative studio
         </Link>
       </div>
     );
@@ -50,16 +51,19 @@ export default async function WindTunnelPage() {
   const overallWinner = results?.overallWinnerVariantId
     ? varById.get(results.overallWinnerVariantId)
     : null;
+  const overallResult = overallWinner
+    ? results!.variants.find((r) => r.variantId === overallWinner.id)
+    : null;
 
   return (
     <div>
-      <div className="flex items-end justify-between">
+      <div className="rise flex items-end justify-between gap-6">
         <div>
-          <p className="font-mono text-xs text-sky-400">STEP 04 — WIND TUNNEL</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight">
+          <StepLabel n="04">Wind tunnel</StepLabel>
+          <h1 className="mt-3 font-display text-4xl font-bold tracking-tight">
             Pre-test before anything hits your feed
           </h1>
-          <p className="mt-3 max-w-xl text-zinc-400">
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
             {vars.length} variants tested by synthetic agents built from your real engagers —
             each one scores scroll-stop, read-through and engagement intent.
           </p>
@@ -68,25 +72,38 @@ export default async function WindTunnelPage() {
       </div>
 
       {results && overallWinner && (
-        <div className="mt-8 rounded-xl border border-sky-800/60 bg-sky-950/20 p-5">
-          <p className="font-mono text-[11px] uppercase tracking-wide text-sky-400">
-            🏆 Overall winner — {segById.get(overallWinner.segmentId)?.emoji}{" "}
-            {segById.get(overallWinner.segmentId)?.name} · {overallWinner.hookStyle}
-          </p>
-          <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+        <div className="rise rise-1 mt-9 overflow-hidden rounded-2xl border border-cobalt/25 bg-surface shadow-pop">
+          <div className="flex flex-wrap items-center gap-2 border-b border-line bg-cobalt-soft/60 px-6 py-3">
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-cobalt-deep">
+              🏆 Overall winner
+            </span>
+            <Chip tone="cobalt">
+              {segById.get(overallWinner.segmentId)?.emoji}{" "}
+              {segById.get(overallWinner.segmentId)?.name}
+            </Chip>
+            <Chip>{overallWinner.hookStyle}</Chip>
+            {overallResult && (
+              <span className="ml-auto">
+                <ConfidenceMeter value={overallResult.confidence} />
+              </span>
+            )}
+          </div>
+          <p className="max-w-2xl whitespace-pre-wrap px-6 py-5 text-sm leading-relaxed text-ink">
             {overallWinner.text}
           </p>
-          <Link
-            href="/app/deploy"
-            className="mt-4 inline-block rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400"
-          >
-            Next: Deploy →
-          </Link>
+          <div className="px-6 pb-5">
+            <Link
+              href="/app/deploy"
+              className="inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-cobalt-deep"
+            >
+              Next: deploy →
+            </Link>
+          </div>
         </div>
       )}
 
       {results && (
-        <div className="mt-8 space-y-6">
+        <div className="mt-10 space-y-7">
           {segs.map((seg) => {
             const segResults = results.variants
               .filter((r) => r.segmentId === seg.id)
@@ -94,23 +111,20 @@ export default async function WindTunnelPage() {
             if (segResults.length === 0) return null;
             return (
               <div key={seg.id}>
-                <h3 className="text-sm font-semibold text-zinc-300">
-                  {seg.emoji} {seg.name}{" "}
-                  <span className="ml-1 font-normal text-zinc-500">
-                    ({seg.size} {seg.size === 1 ? "engager" : "engagers"})
-                  </span>
+                <h3 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+                  {seg.emoji} {seg.name} · {seg.size} {seg.size === 1 ? "engager" : "engagers"}
                 </h3>
-                <div className="mt-2 overflow-x-auto rounded-xl border border-zinc-800">
+                <div className="mt-3 overflow-x-auto rounded-2xl border border-line bg-surface shadow-card">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-zinc-800 bg-zinc-900/70 text-left text-[11px] uppercase tracking-wide text-zinc-500">
-                        <th className="px-4 py-2.5">Variant</th>
-                        <th className="px-3 py-2.5">Engagement index</th>
-                        <th className="px-3 py-2.5">Scroll-stop</th>
-                        <th className="px-3 py-2.5">Reactions</th>
-                        <th className="px-3 py-2.5">Comments</th>
-                        <th className="px-3 py-2.5">Reposts</th>
-                        <th className="px-3 py-2.5">Confidence</th>
+                      <tr className="border-b border-line text-left font-mono text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+                        <th className="px-5 py-3 font-medium">Variant</th>
+                        <th className="px-3 py-3 font-medium">Engagement index</th>
+                        <th className="px-3 py-3 font-medium">Scroll-stop</th>
+                        <th className="px-3 py-3 font-medium">Reactions</th>
+                        <th className="px-3 py-3 font-medium">Comments</th>
+                        <th className="px-3 py-3 font-medium">Reposts</th>
+                        <th className="px-3 py-3 font-medium">Confidence</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -120,37 +134,47 @@ export default async function WindTunnelPage() {
                           <tr
                             key={r.variantId}
                             className={
-                              "border-b border-zinc-800/50 last:border-0 " +
-                              (r.isWinner ? "bg-sky-950/30" : "bg-zinc-950/40")
+                              "border-b border-line/60 last:border-0 " +
+                              (r.isWinner ? "bg-cobalt-soft/40" : "")
                             }
                           >
-                            <td className="px-4 py-3">
-                              {r.isWinner && <span className="mr-1.5">🏆</span>}
-                              <span className="font-mono text-xs uppercase text-zinc-300">
-                                {v?.hookStyle}
+                            <td className="px-5 py-3.5">
+                              <span className="flex items-center gap-2">
+                                {r.isWinner ? (
+                                  <Chip tone="teal">winner</Chip>
+                                ) : (
+                                  <span className="h-1.5 w-1.5 rounded-full bg-line-strong" />
+                                )}
+                                <span className="font-mono text-xs text-ink">{v?.hookStyle}</span>
                               </span>
                             </td>
-                            <td className="px-3 py-3">
-                              <div className="flex items-center gap-2">
-                                <div className="h-1.5 w-24 overflow-hidden rounded-full bg-zinc-800">
+                            <td className="px-3 py-3.5">
+                              <div className="flex items-center gap-2.5">
+                                <div className="h-1.5 w-24 overflow-hidden rounded-full bg-line">
                                   <div
-                                    className="h-full rounded-full bg-sky-400"
+                                    className="h-full rounded-full bg-cobalt"
                                     style={{ width: `${r.engagementIndex}%` }}
                                   />
                                 </div>
-                                <span className="font-semibold text-sky-400">
+                                <span className="font-mono font-semibold tabular-nums text-cobalt-deep">
                                   {r.engagementIndex}
                                 </span>
                               </div>
                             </td>
-                            <td className="px-3 py-3 text-zinc-300">
+                            <td className="px-3 py-3.5 tabular-nums text-ink-soft">
                               {Math.round(r.scrollStopRate * 100)}%
                             </td>
-                            <td className="px-3 py-3 text-zinc-300">~{r.predictedReactions}</td>
-                            <td className="px-3 py-3 text-zinc-300">~{r.predictedComments}</td>
-                            <td className="px-3 py-3 text-zinc-300">~{r.predictedReposts}</td>
-                            <td className="px-3 py-3 text-zinc-400">
-                              {Math.round(r.confidence * 100)}%
+                            <td className="px-3 py-3.5 tabular-nums text-ink-soft">
+                              ~{r.predictedReactions}
+                            </td>
+                            <td className="px-3 py-3.5 tabular-nums text-ink-soft">
+                              ~{r.predictedComments}
+                            </td>
+                            <td className="px-3 py-3.5 tabular-nums text-ink-soft">
+                              ~{r.predictedReposts}
+                            </td>
+                            <td className="px-3 py-3.5">
+                              <ConfidenceMeter value={r.confidence} />
                             </td>
                           </tr>
                         );
@@ -165,14 +189,24 @@ export default async function WindTunnelPage() {
       )}
 
       {results && scores.length > 0 && (
-        <div className="mt-10">
-          <h3 className="text-sm font-semibold text-zinc-300">What the agents said</h3>
+        <div className="mt-12">
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+            What the agents said
+          </h3>
           <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
             {pickInterestingScores(scores).map((s) => (
-              <div key={s.id} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
-                <p className="text-xs font-semibold text-zinc-200">{s.persona.name}</p>
-                <p className="text-[11px] text-zinc-500">{s.persona.headline}</p>
-                <p className="mt-2 text-xs italic leading-relaxed text-zinc-400">
+              <div
+                key={s.id}
+                className="rounded-2xl border border-line bg-surface p-4 shadow-card"
+              >
+                <div className="flex items-center gap-2.5">
+                  <AvatarDot name={s.persona.name} />
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-semibold text-ink">{s.persona.name}</p>
+                    <p className="truncate text-[11px] text-ink-faint">{s.persona.headline}</p>
+                  </div>
+                </div>
+                <p className="mt-3 text-[13px] italic leading-relaxed text-ink-soft">
                   &ldquo;{s.rationale}&rdquo;
                 </p>
               </div>
@@ -192,7 +226,6 @@ type ScoreRow = {
 };
 
 function pickInterestingScores(scores: ScoreRow[]): ScoreRow[] {
-  // Show a mix: the most enthusiastic and the most dismissive reactions
   const sorted = [...scores].sort(
     (a, b) => b.scores.comment + b.scores.scrollStop - (a.scores.comment + a.scores.scrollStop),
   );

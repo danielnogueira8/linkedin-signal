@@ -1,6 +1,7 @@
 import { db, campaigns, variants, segments, simulations } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { getActiveWorkspace } from "@/lib/workspace";
+import { StepLabel, Chip, ConfidenceMeter } from "@/components/ui";
 import { CopyButton } from "./copy-button";
 import Link from "next/link";
 
@@ -26,16 +27,16 @@ export default async function DeployPage() {
 
   if (!campaign || sim?.status !== "done" || !sim.results) {
     return (
-      <div className="mx-auto mt-24 max-w-md text-center">
-        <h1 className="text-xl font-bold">Run the wind tunnel first</h1>
-        <p className="mt-2 text-zinc-400">
+      <div className="mx-auto mt-28 max-w-md text-center">
+        <h1 className="font-display text-2xl font-bold">Run the wind tunnel first</h1>
+        <p className="mt-2 text-ink-soft">
           Deploy shows your winning posts once the simulation has picked them.
         </p>
         <Link
           href="/app/windtunnel"
-          className="mt-5 inline-block rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400"
+          className="mt-6 inline-block rounded-xl bg-cobalt px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-cobalt-deep"
         >
-          Go to Wind Tunnel
+          Go to Wind tunnel
         </Link>
       </div>
     );
@@ -56,62 +57,75 @@ export default async function DeployPage() {
 
   return (
     <div>
-      <p className="font-mono text-xs text-sky-400">STEP 05 — DEPLOY</p>
-      <h1 className="mt-2 text-3xl font-bold tracking-tight">Ship the winners</h1>
-      <p className="mt-3 max-w-xl text-zinc-400">
-        One winning post per niche, ready to paste into LinkedIn. Stagger them across the week
-        so each niche gets its own moment.
-      </p>
-
-      <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-sm text-zinc-300">
-        <span className="font-semibold text-zinc-200">Best posting windows:</span>{" "}
-        {POST_TIMES.join(" · ")}{" "}
-        <span className="text-zinc-500">(your timezone, B2B peak engagement)</span>
+      <div className="rise">
+        <StepLabel n="05">Deploy</StepLabel>
+        <h1 className="mt-3 font-display text-4xl font-bold tracking-tight">Ship the winners</h1>
+        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-ink-soft">
+          One winning post per niche, ready to paste into LinkedIn. Stagger them across the
+          week so each niche gets its own moment.
+        </p>
       </div>
 
-      <div className="mt-8 space-y-5">
-        {ordered.map((v) => {
+      <div className="rise rise-1 mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-line bg-surface px-5 py-3.5 text-sm shadow-card">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+          Best windows
+        </span>
+        {POST_TIMES.map((t) => (
+          <Chip key={t} tone="teal">
+            {t}
+          </Chip>
+        ))}
+        <span className="text-xs text-ink-faint">your timezone · B2B peak engagement</span>
+      </div>
+
+      <div className="mt-9 space-y-5">
+        {ordered.map((v, i) => {
           const seg = segById.get(v.segmentId);
           const r = resultByVariant.get(v.id);
           const isOverall = v.id === overallId;
           return (
             <div
               key={v.id}
-              className={
-                "rounded-xl border p-5 " +
-                (isOverall
-                  ? "border-sky-800/60 bg-sky-950/20"
-                  : "border-zinc-800 bg-zinc-900/50")
-              }
+              className={`rise rise-${Math.min(i + 1, 5)} overflow-hidden rounded-2xl border bg-surface shadow-card ${
+                isOverall ? "border-cobalt/25 shadow-pop" : "border-line"
+              }`}
             >
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-sm font-semibold text-zinc-200">
-                  {isOverall && <span className="mr-1.5">🏆</span>}
-                  {seg?.emoji} {seg?.name}
-                  <span className="ml-2 font-mono text-[10px] uppercase text-zinc-500">
-                    {v.hookStyle}
+              <div
+                className={`flex flex-wrap items-center gap-2 border-b border-line px-5 py-3 ${
+                  isOverall ? "bg-cobalt-soft/60" : ""
+                }`}
+              >
+                {isOverall && (
+                  <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-cobalt-deep">
+                    🏆 Top pick
                   </span>
-                </p>
-                <div className="flex items-center gap-3">
-                  {r && (
-                    <span className="text-xs text-zinc-500">
-                      index <span className="font-semibold text-sky-400">{r.engagementIndex}</span>{" "}
-                      · ~{r.predictedReactions} reactions · ~{r.predictedComments} comments
-                    </span>
-                  )}
+                )}
+                <Chip tone={isOverall ? "cobalt" : "neutral"}>
+                  {seg?.emoji} {seg?.name}
+                </Chip>
+                <Chip>{v.hookStyle}</Chip>
+                {r && (
+                  <span className="text-xs tabular-nums text-ink-faint">
+                    ~{r.predictedReactions} reactions · ~{r.predictedComments} comments
+                  </span>
+                )}
+                <span className="ml-auto flex items-center gap-3">
+                  {r && <ConfidenceMeter value={r.confidence} />}
                   <CopyButton text={v.text} />
-                </div>
+                </span>
               </div>
-              <p className="mt-3 whitespace-pre-wrap rounded-lg bg-zinc-950/60 p-4 text-sm leading-relaxed text-zinc-200">
+              <p className="whitespace-pre-wrap px-5 py-4 text-sm leading-relaxed text-ink">
                 {v.text}
               </p>
               {seg && (
-                <a
-                  href={`/api/export?segmentId=${seg.id}`}
-                  className="mt-3 inline-block text-xs font-medium text-sky-400 hover:text-sky-300"
-                >
-                  Export {seg.name} audience CSV ↓
-                </a>
+                <div className="border-t border-line px-5 py-3">
+                  <a
+                    href={`/api/export?segmentId=${seg.id}`}
+                    className="font-mono text-[11px] font-medium text-cobalt hover:text-cobalt-deep"
+                  >
+                    Export {seg.name} audience CSV ↓
+                  </a>
+                </div>
               )}
             </div>
           );
