@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Signal/in — launch accelerator for LinkedIn
 
-## Getting Started
+A LinkedIn-native take on [Signal](https://www.use-signal.com): map your **real** audience,
+write launch posts per niche, and wind-tunnel test every variant with AI agents — before you post.
 
-First, run the development server:
+LinkedIn has no follower-list API, so Signal/in builds your audience from **engagers**:
+everyone who reacted to or commented on your recent posts. Arguably a better signal —
+they're the people who actually stop for you.
+
+## The loop
+
+1. **Sync** — paste your LinkedIn profile URL; recent posts + all reactors/commenters are scraped via Apify (`harvestapi/linkedin-profile-posts`, no cookies).
+2. **Audience Map** — Claude clusters engagers into named niches with sizes, traits, and writing guidance.
+3. **Creative Studio** — one launch brief in → 4 hook-style variants per niche out (contrarian / story / data-led / direct-value).
+4. **Wind Tunnel** — synthetic personas grounded in your real engagers score every variant (scroll-stop, read-through, react/comment/repost intent) → winners with confidence scores.
+5. **Deploy** — copy-ready winning posts, best posting windows, per-niche audience CSV export.
+
+## Run it
 
 ```bash
+npm install
+npx drizzle-kit push   # creates data/signal.db
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Demo mode (default)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.env.local` ships with `DEMO_MODE=1`: the full loop runs on a seeded sample audience with
+**zero API keys and zero spend** (deterministic engines stand in for scraping + AI).
 
-## Learn More
+### Live mode
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# .env.local
+DEMO_MODE=0
+ANTHROPIC_API_KEY=sk-ant-...   # clustering, generation, wind tunnel
+APIFY_TOKEN=apify_api_...      # LinkedIn engager scraping
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+A full sync (20 posts, capped reactions/comments) costs roughly $5–10 in Apify credits.
+Wind tunnel uses `claude-opus-5` for personas and `claude-haiku-4-5` for the scoring swarm.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Stack
 
-## Deploy on Vercel
+Next.js 16 (App Router) · TypeScript · Tailwind v4 · SQLite + Drizzle · Anthropic SDK · Apify
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Single-user MVP: no auth/billing; the latest synced workspace is active.
+- Long steps run as in-process jobs polled via `/api/jobs/[id]`.
+- Re-mapping the audience cascades: derived variants/simulations are cleared and campaigns reset to draft.
