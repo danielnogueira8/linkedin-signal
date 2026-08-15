@@ -39,7 +39,7 @@ function HeroDemo() {
       {/* Agent trace card */}
       <div className="rise rise-2 rounded-2xl border border-line bg-surface p-5 shadow-pop">
         <div className="flex items-center gap-3">
-          <ThinkingOrb state="working" size={20} aria-label="Agent working" />
+          <ThinkingOrb state="solving" size={20} aria-label="Agent solving" />
           <span className="shimmer-text text-sm font-medium">AI Arena running…</span>
           <span className="ml-auto font-mono text-[11px] tabular-nums text-ink-faint">4.1s</span>
         </div>

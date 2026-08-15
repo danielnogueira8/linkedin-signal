@@ -76,7 +76,7 @@ function useElapsed(startedAt: number | null, running: boolean) {
 export function AgentTrace({
   handle,
   label,
-  orbState = "breathing",
+  orbState = "solving",
 }: {
   handle: JobHandle;
   label: string;
