@@ -44,7 +44,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   key={agent}
                   seed={agent}
                   size={22}
-                  className="ring-2 ring-surface"
+                  className="bg-surface p-[1px] ring-1 ring-line"
                 />
               ))}
             </div>
