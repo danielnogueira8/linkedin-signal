@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Chip, ConfidenceMeter, AgentAvatar } from "@/components/ui";
+import { ThinkingOrb } from "@/components/thinking-orb";
 
 const steps = [
   {
@@ -38,11 +39,7 @@ function HeroDemo() {
       {/* Agent trace card */}
       <div className="rise rise-2 rounded-2xl border border-line bg-surface p-5 shadow-pop">
         <div className="flex items-center gap-3">
-          <div className="pixel-grid">
-            {Array.from({ length: 9 }).map((_, i) => (
-              <span key={i} />
-            ))}
-          </div>
+          <ThinkingOrb state="working" size={20} aria-label="Agent working" />
           <span className="shimmer-text text-sm font-medium">AI Arena running…</span>
           <span className="ml-auto font-mono text-[11px] tabular-nums text-ink-faint">4.1s</span>
         </div>
