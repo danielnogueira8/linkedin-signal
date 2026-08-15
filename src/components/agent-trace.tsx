@@ -110,7 +110,7 @@ export function AgentTrace({ handle, label }: { handle: JobHandle; label: string
       >
         {running ? (
           <>
-            <AgentAvatar seed={label} size={24} />
+            <AgentAvatar seed={label} size={32} />
             <span className="shimmer-text text-sm font-medium">{label}…</span>
             <PixelGrid />
             <span className="ml-auto font-mono text-[11px] tabular-nums text-ink-faint">
@@ -119,7 +119,7 @@ export function AgentTrace({ handle, label }: { handle: JobHandle; label: string
           </>
         ) : (
           <>
-            <AgentAvatar seed={label} size={24} />
+            <AgentAvatar seed={label} size={32} />
             <span className="text-sm font-medium text-ink">
               {label} — ran for {elapsed.toFixed(1)}s
             </span>

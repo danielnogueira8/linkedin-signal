@@ -43,7 +43,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 <AgentAvatar
                   key={agent}
                   seed={agent}
-                  size={22}
+                  size={30}
                   className="bg-surface p-[1px] ring-1 ring-line"
                 />
               ))}

@@ -216,7 +216,7 @@ export default async function WindTunnelPage() {
                 className="rounded-2xl border border-line bg-surface p-4 shadow-card"
               >
                 <div className="flex items-center gap-2.5">
-                  <AgentAvatar seed={s.persona.name} size={32} />
+                  <AgentAvatar seed={s.persona.name} size={44} />
                   <div className="min-w-0">
                     <p className="truncate text-xs font-semibold text-ink">{s.persona.name}</p>
                     <p className="truncate text-[11px] text-ink-faint">{s.persona.headline}</p>

@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { agentAvatarUri } from "@/lib/avatar";
 
-/** DiceBear thumbs face — the identity of a synthetic agent. Humans get AvatarDot. */
+/** Blob mascot — the identity of a synthetic agent. Humans get AvatarDot / photos. */
 export function AgentAvatar({
   seed,
-  size = 28,
+  size = 36,
   className = "",
 }: {
   seed: string;
