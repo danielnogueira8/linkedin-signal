@@ -38,7 +38,7 @@ export function ClusterButton({
         {busy ? "Profiling…" : hasSegments ? "Rebuild profile" : "Build my profile"}
       </button>
       <div className="text-left">
-        <AgentTrace handle={handle} label="Profiling your audience" />
+        <AgentTrace handle={handle} label="Profiling your audience" orbState="shaping" />
       </div>
     </div>
   );

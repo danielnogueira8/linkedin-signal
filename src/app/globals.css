@@ -78,16 +78,6 @@ button:active:not(:disabled) {
   }
 }
 
-@keyframes pixel-pulse {
-  0%,
-  100% {
-    opacity: 0.15;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
 @keyframes trace-in {
   from {
     opacity: 0;
@@ -140,29 +130,6 @@ button:active:not(:disabled) {
   animation: shimmer-slide 1.6s linear infinite;
 }
 
-/* Pixel-grid loader */
-.pixel-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 4px);
-  gap: 2px;
-}
-.pixel-grid span {
-  width: 4px;
-  height: 4px;
-  border-radius: 1px;
-  background: var(--color-cobalt);
-  animation: pixel-pulse 1s ease-in-out infinite;
-}
-.pixel-grid span:nth-child(1) { animation-delay: 0s; }
-.pixel-grid span:nth-child(2) { animation-delay: 0.12s; }
-.pixel-grid span:nth-child(3) { animation-delay: 0.24s; }
-.pixel-grid span:nth-child(4) { animation-delay: 0.36s; }
-.pixel-grid span:nth-child(5) { animation-delay: 0.48s; }
-.pixel-grid span:nth-child(6) { animation-delay: 0.6s; }
-.pixel-grid span:nth-child(7) { animation-delay: 0.72s; }
-.pixel-grid span:nth-child(8) { animation-delay: 0.84s; }
-.pixel-grid span:nth-child(9) { animation-delay: 0.96s; }
-
 /* Translucent chrome: content scrolls under a material layer */
 .chrome {
   background: color-mix(in srgb, var(--color-paper) 72%, transparent);
@@ -189,9 +156,6 @@ button:active:not(:disabled) {
     background: none;
     -webkit-background-clip: initial;
     background-clip: initial;
-  }
-  .pixel-grid span {
-    animation-duration: 2s;
   }
   button:active:not(:disabled),
   .btn-press:active {

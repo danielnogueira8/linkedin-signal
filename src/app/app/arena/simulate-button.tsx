@@ -38,7 +38,7 @@ export function SimulateButton({
         {busy ? "Simulating…" : hasResults ? "Re-run simulation" : "Run AI Arena"}
       </button>
       <div className="text-left">
-        <AgentTrace handle={handle} label="Testing variants against your audience" />
+        <AgentTrace handle={handle} label="Testing variants against your audience" orbState="working" />
       </div>
     </div>
   );

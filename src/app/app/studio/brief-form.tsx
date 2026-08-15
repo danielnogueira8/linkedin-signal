@@ -147,6 +147,7 @@ export function BriefForm({
       <AgentTrace
         handle={handle}
         label={mode === "draft" ? "Remixing your draft" : "Writing takes for your audience"}
+        orbState="composing"
       />
     </div>
   );

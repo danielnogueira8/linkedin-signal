@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ThinkingOrb } from "thinking-orbs";
+import type { OrbState } from "thinking-orbs";
 import { AgentAvatar } from "./ui";
 
 export type JobState = {
@@ -55,16 +57,6 @@ export function useJob(jobId: number | null, onDone?: (job: JobState) => void): 
   return { job, steps, startedAt };
 }
 
-function PixelGrid() {
-  return (
-    <div className="pixel-grid" aria-hidden>
-      {Array.from({ length: 9 }).map((_, i) => (
-        <span key={i} />
-      ))}
-    </div>
-  );
-}
-
 function useElapsed(startedAt: number | null, running: boolean) {
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
@@ -81,7 +73,16 @@ function useElapsed(startedAt: number | null, running: boolean) {
  * Agent thinking-trace: streams job progress as an expandable step log with
  * elapsed time — the agent shows its work instead of hiding behind a spinner.
  */
-export function AgentTrace({ handle, label }: { handle: JobHandle; label: string }) {
+export function AgentTrace({
+  handle,
+  label,
+  orbState = "breathing",
+}: {
+  handle: JobHandle;
+  label: string;
+  /** Which thinking-orb animation plays while the agent runs. */
+  orbState?: OrbState;
+}) {
   const { job, steps, startedAt } = handle;
   const [collapsed, setCollapsed] = useState(false);
   const running = job?.status === "pending" || job?.status === "running";
@@ -112,7 +113,7 @@ export function AgentTrace({ handle, label }: { handle: JobHandle; label: string
           <>
             <AgentAvatar seed={label} size={32} />
             <span className="shimmer-text text-sm font-medium">{label}…</span>
-            <PixelGrid />
+            <ThinkingOrb state={orbState} size={20} aria-label={`Agent ${orbState}`} />
             <span className="ml-auto font-mono text-[11px] tabular-nums text-ink-faint">
               {elapsed.toFixed(1)}s
             </span>
