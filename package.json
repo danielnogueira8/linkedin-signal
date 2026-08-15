@@ -9,8 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@dicebear/collection": "^9.4.2",
-    "@dicebear/core": "^9.4.3",
     "@neondatabase/serverless": "^1.1.0",
     "apify-client": "^2.25.0",
     "drizzle-orm": "^0.45.2",
