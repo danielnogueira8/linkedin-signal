@@ -65,7 +65,7 @@ function HeroDemo() {
                 <AgentAvatar
                   key={agent}
                   seed={agent}
-                  size={20}
+                  size={26}
                   className="bg-surface p-[1px] ring-1 ring-line"
                 />
               ))}
