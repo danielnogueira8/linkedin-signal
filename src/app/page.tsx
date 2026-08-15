@@ -62,7 +62,12 @@ function HeroDemo() {
             </span>
             <span className="ml-auto flex shrink-0 -space-x-1.5">
               {["nova", "atlas", "quill"].map((agent) => (
-                <AgentAvatar key={agent} seed={agent} size={20} className="ring-2 ring-surface" />
+                <AgentAvatar
+                  key={agent}
+                  seed={agent}
+                  size={20}
+                  className="bg-surface p-[1px] ring-1 ring-line"
+                />
               ))}
             </span>
           </li>
