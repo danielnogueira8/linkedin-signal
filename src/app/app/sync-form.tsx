@@ -51,7 +51,7 @@ export function SyncForm() {
         </button>
       </div>
       {error && <p className="mt-3 text-sm text-ember">{error}</p>}
-      <AgentTrace handle={handle} label="Scraping your audience" orbState="searching" />
+      <AgentTrace handle={handle} label="Scraping your audience" />
     </div>
   );
 }
